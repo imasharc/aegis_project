@@ -11,3 +11,6 @@ wheels/
 
 # Environmental variables
 .env
+
+# Documents to be processed by RAG
+data/
