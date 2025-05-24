@@ -16,6 +16,7 @@ class AgentState(TypedDict):
     user_query: str
     gdpr_citations: List[Dict[str, Any]]
     polish_law_citations: List[Dict[str, Any]]
+    polish_law_analysis: str
     internal_policy_citations: List[Dict[str, Any]]
     summary: Dict[str, Any]
     
