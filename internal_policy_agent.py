@@ -34,55 +34,35 @@ class InternalPolicyAgent:
         )
     
     def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        """Process the query with legal context and extract internal policy guidelines."""
+        """Process the user query with GDPR and Polish law context."""
         print("\n📋 [STEP 3/4] INTERNAL POLICY AGENT: Matching with company policies...")
         user_query = state["user_query"]
-        gdpr_citations = state["gdpr_citations"]
-        polish_law_citations = state["polish_law_citations"]
         
-        # Format citations for the prompt
-        gdpr_citations_text = "\n".join([
-            f"- {cite['article']}: {cite['quote']} - {cite['explanation']}"
-            for cite in gdpr_citations
-        ])
-        
-        polish_law_citations_text = "\n".join([
-            f"- {cite['article']}: {cite['quote']} - {cite['explanation']}"
-            for cite in polish_law_citations
-        ])
-        
-        # Create the chain
+        # Pass the original citation variables directly
         chain = self.prompt | self.model
         
-        # Invoke the chain
+        # Invoke the chain with the expected variable names
         response = chain.invoke({
             "user_query": user_query,
-            "gdpr_citations": gdpr_citations_text,
-            "polish_law_citations": polish_law_citations_text
+            "gdpr_citations": state["gdpr_citations"],
+            "polish_law_citations": state["polish_law_citations"]
         })
         
-        # Later here will be a call this would be a RAG-based retrieval
-        # For now, I'll just hardcode some articles
-        
-        citations = [
+        # Hardcoded internal policies for now
+        internal_policies = [
             {
-                "source": "Company Data Protection Policy",
-                "section": "Section 4.3: Sensitive Data Handling",
-                "text": "Procedures for processing special categories of data",
-                "quote": "All processing of sensitive personal data requires explicit documentation of the legal basis, proper consent collection, and approval from the Data Protection Officer.",
-                "explanation": "This policy implements both GDPR Article 9 and Polish Data Protection Act Article 27 requirements."
+                "policy_id": "DP-001",
+                "title": "Data Processing Policy",
+                "content": "Guidelines for processing sensitive personal data in compliance with GDPR and Polish data protection laws."
             },
             {
-                "source": "Polish Branch Procedure Manual",
-                "section": "PR-PL-021: Employee Data Processing",
-                "text": "Specific procedures for the Polish branch",
-                "quote": "The HR department must use the standardized consent forms in both Polish and English, and must maintain records in the centralized HR system with appropriate access controls.",
-                "explanation": "This procedure addresses the specific requirements of Polish Labor Code Article 221."
+                "policy_id": "DP-002",
+                "title": "Data Subject Rights Policy",
+                "content": "Procedures for handling data subject requests in Poland."
             }
         ]
         
-        # Update the state with internal policy citations
-        state["internal_policy_citations"] = citations
-        print(f"✅ Completed: Found {len(state['internal_policy_citations'])} internal policy guidelines")
+        state["internal_policy_citations"] = internal_policies
+        print(f"✅ Completed: Found {len(internal_policies)} relevant internal policies")
         
         return state

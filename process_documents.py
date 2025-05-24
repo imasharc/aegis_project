@@ -50,9 +50,10 @@ def process_documents():
         
         # Initialize vector store
         db = Chroma(
-            persist_directory=DB_DIR,
-            embedding_function=embeddings
-        )
+        persist_directory=DB_DIR,
+        embedding_function=embeddings,
+        collection_name="gdpr"
+    )
         
         # Get all files in the raw directory
         all_files = (
