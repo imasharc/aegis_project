@@ -1,4 +1,5 @@
 import os
+import random
 from typing import Dict, List, Any, TypedDict
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
@@ -7,6 +8,7 @@ from gdpr_agent import GDPRAgent
 from polish_law_agent import PolishLawAgent
 from internal_policy_agent import InternalPolicyAgent
 from summarization_agent import SummarizationAgent
+from test_queries import get_all_queries
 
 # Load environment variables
 load_dotenv()
@@ -47,10 +49,18 @@ workflow.set_entry_point("gdpr")
 # Compile the graph
 app = workflow.compile()
 
+def get_random_test_query():
+    """Randomly select a test query from the imported database."""
+    all_queries = get_all_queries()
+    return random.choice(all_queries)
+
 def main():
-    # Hardcoded user query for now (will be replaced with Streamlit input later)
+    # Select a random query
+    user_query = get_random_test_query()
+    
+    # Print workflow start information
     print("\n===== STARTING LANGGRAPH WORKFLOW =====")
-    user_query = "What are the requirements for processing sensitive personal data under GDPR in our Polish branch?"
+    print(f"Test query: \"{user_query}\"")
     print("=======================================\n")
     
     # Initial state
