@@ -96,8 +96,8 @@ class PolishLawAgent:
         """
         try:
             # Initialize embeddings using the same model as processing
-            embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-            self.logger.info("Embeddings model initialized: text-embedding-3-small")
+            embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+            self.logger.info("Embeddings model initialized: text-embedding-3-large")
             
             # Load Polish law vector store
             polish_db_path = os.path.join(os.path.dirname(__file__), "data/polish_law_db")

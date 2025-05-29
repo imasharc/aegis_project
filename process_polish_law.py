@@ -331,7 +331,7 @@ def embed_documents_with_flattened_metadata(docs):
     
     # Initialize embeddings with the same model used throughout your system
     embeddings = OpenAIEmbeddings(
-        model="text-embedding-3-small",
+        model="text-embedding-3-large",
         openai_api_key=api_key
     )
     
