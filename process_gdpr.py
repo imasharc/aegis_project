@@ -21,6 +21,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 RAW_DIR = os.path.join(DATA_DIR, "raw")
 GDPR_DB_DIR = os.path.join(DATA_DIR, "gdpr_db")
 PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
+PROCESS_GDPR_LOGS = os.path.join(DATA_DIR, "process_gdpr_logs")
 
 # Set up logging with detailed formatting for better debugging
 LOG_DIR = os.path.join(DATA_DIR, "process_gdpr_logs")
@@ -126,6 +127,9 @@ def flatten_article_structure(article_structure):
         
         # Analyze paragraph structure to understand GDPR-specific patterns
         paragraphs_info = article_structure.get('paragraphs', {})
+        # Handle the case where paragraphs is explicitly set to null
+        if paragraphs_info is None:
+            paragraphs_info = {}
         has_any_sub_paragraphs = False
         numbering_styles = set()
         complexity_indicators = []
@@ -625,7 +629,7 @@ def process_enhanced_gdpr():
         
         # Step 4: Save comprehensive GDPR processing summary
         logger.info("STEP 4: Saving comprehensive GDPR processing summary...")
-        summary_path = os.path.join(PROCESSED_DIR, f"enhanced_gdpr_processing_summary_{timestamp}.json")
+        summary_path = os.path.join(PROCESS_GDPR_LOGS, f"enhanced_gdpr_processing_summary_{timestamp}.json")
         save_enhanced_gdpr_processing_summary(docs, summary_path)
         
         # Final completion statistics

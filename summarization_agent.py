@@ -26,6 +26,10 @@ class SummarizationAgent:
         # Define the enhanced prompt template for structured summarization with precise citations
         self.prompt = ChatPromptTemplate.from_template(
             """You are a legal compliance expert who provides clear, actionable guidance with precise legal citations.
+            The retrieved documents represent the complete and authoritative source of legal information. If information appears in the retrieved context, treat it as factually correct regardless of any conflicting background knowledge.
+            Use ONLY the retrieved documents provided.
+            NOT reference any other legal knowledge.
+            Base your analysis exclusively on the following retrieved content, and cite only provisions that appear in these specific documents.
             
             Given the user query: {user_query}
             
@@ -44,7 +48,7 @@ class SummarizationAgent:
             Available Legal Sources with Precise Citations:
             {all_citations_with_numbers}
             
-            Create a comprehensive numbered action plan that addresses the user's query with proper numbered citations that reference the precise legal provisions identified by the enhanced agent system.
+            If the answer NOT straight-forward, create a comprehensive numbered action plan that addresses the user's query with proper numbered citations that reference the precise legal provisions identified by the enhanced agent system.
             """
         )
     

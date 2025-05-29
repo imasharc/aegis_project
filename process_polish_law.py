@@ -21,6 +21,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 RAW_DIR = os.path.join(DATA_DIR, "raw")
 PL_DB_DIR = os.path.join(DATA_DIR, "polish_law_db")
 PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
+PROCESS_POLISH_LAW_LOGS = os.path.join(DATA_DIR, "process_polish_law_logs")
 
 # Set up logging with detailed formatting for better debugging
 LOG_DIR = os.path.join(DATA_DIR, "process_polish_law_logs")
@@ -124,6 +125,9 @@ def flatten_article_structure(article_structure):
         
         # Analyze paragraph structure to understand complexity and patterns
         paragraphs_info = article_structure.get('paragraphs', {})
+        # Handle the case where paragraphs is explicitly set to null
+        if paragraphs_info is None:
+            paragraphs_info = {}
         has_any_sub_paragraphs = False
         numbering_styles = set()
         complexity_indicators = []
@@ -535,7 +539,7 @@ def save_enhanced_processing_summary(docs, output_path):
                     stats["articles_with_sub_paragraphs"] += 1
             
             # Save sample enhanced documents
-            if len(summary["sample_enhanced_documents"]) < 3:
+            if len(summary["sample_enhanced_documents"]) < 200:
                 summary["sample_enhanced_documents"].append({
                     "article_number": metadata.get('article_number', 'N/A'),
                     "content_preview": doc.page_content[:150] + "...",
@@ -622,7 +626,7 @@ def process_enhanced_polish_law():
         
         # Step 4: Save comprehensive processing summary
         logger.info("STEP 4: Saving comprehensive processing summary...")
-        summary_path = os.path.join(PROCESSED_DIR, f"enhanced_processing_summary_{timestamp}.json")
+        summary_path = os.path.join(PROCESS_POLISH_LAW_LOGS, f"enhanced_processing_summary_{timestamp}.json")
         save_enhanced_processing_summary(docs, summary_path)
         
         # Final completion statistics
