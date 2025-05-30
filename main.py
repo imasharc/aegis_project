@@ -10,7 +10,13 @@ from polish_law_agent import PolishLawAgent
 # This agent provides precise procedure citations with implementation step details
 from internal_security_agent import InternalSecurityAgent
 from summarization_agent import SummarizationAgent
-from test_queries import get_all_queries
+from test_queries import (
+    get_all_eu_business_queries,
+    get_eu_business_queries_by_category, 
+    get_eu_business_categories,
+    get_complex_eu_multi_domain_queries,
+    get_intra_eu_coordination_queries
+)
 
 # Load environment variables
 load_dotenv()
@@ -74,16 +80,62 @@ workflow.set_entry_point("gdpr")
 # Compile the graph
 app = workflow.compile()
 
-def get_random_test_query():
+def get_random_test_query(focus_area="by_category"):
     """
-    Randomly select a test query from the imported database.
+    Randomly select an EU test query with configurable focus for targeted system validation.
     
-    This function helps test the enhanced system with various query types
-    to ensure all three sophisticated agents work well together across
-    different scenarios.
+    This enhanced function allows you to test specific aspects of EU GDPR compliance
+    by selecting queries that match particular operational areas or complexity levels.
+    This targeted approach helps validate system performance across different EU
+    business scenarios and identify areas needing refinement.
+    
+    Parameters:
+    focus_area (str): Controls the type of EU queries selected
+        - "mixed": Random selection from all EU business scenarios (default)
+        - "complex": Multi-member state queries requiring sophisticated coordination
+        - "intra_eu": Focus on cross-border coordination within EU
+        - "by_category": Rotate through different operational areas systematically
+        - "emerging_tech": EU-based AI, IoT, and new technology challenges
+    
+    This approach demonstrates how thoughtful test case selection within the EU
+    regulatory framework can provide more actionable insights into system performance.
     """
-    all_queries = get_all_queries()
-    return random.choice(all_queries)
+    
+    if focus_area == "complex":
+        # Use only the most challenging multi-member state scenarios
+        # These test sophisticated coordination across EU jurisdictions
+        complex_eu_queries = get_complex_eu_multi_domain_queries()
+        return random.choice(complex_eu_queries)
+    
+    elif focus_area == "intra_eu":
+        # Focus on cross-border coordination within EU
+        # Tests understanding of member state implementation differences
+        coordination_queries = get_intra_eu_coordination_queries()
+        return random.choice(coordination_queries)
+    
+    elif focus_area == "by_category":
+        # Systematically test different EU operational areas
+        # Ensures comprehensive coverage of EU business domains
+        categories = get_eu_business_categories()
+        random_category = random.choice(categories)
+        category_queries = get_eu_business_queries_by_category(random_category)
+        selected_query = random.choice(category_queries)
+        
+        # Print category info to track EU testing coverage
+        print(f"Testing EU {random_category} scenario...")
+        return selected_query
+    
+    elif focus_area == "emerging_tech":
+        # Focus on EU-based emerging technology scenarios
+        # Tests application of GDPR to new technologies within EU framework
+        tech_queries = get_eu_business_queries_by_category("emerging_technology_scenarios")
+        return random.choice(tech_queries)
+    
+    else:  # "mixed" or any other value
+        # Default: random selection from all EU business scenarios
+        # Provides comprehensive EU coverage while maintaining unpredictability
+        all_eu_business_queries = get_all_eu_business_queries()
+        return random.choice(all_eu_business_queries)
 
 def main():
     """
