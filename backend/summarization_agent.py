@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 # Import the enhanced agent from the new location
-from backend.agent.summarization import create_enhanced_summarization_agent
+from agent.summarization import create_enhanced_summarization_agent
 
 class SummarizationAgent:
     """

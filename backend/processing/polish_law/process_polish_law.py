@@ -58,7 +58,7 @@ def setup_comprehensive_logging() -> logging.Logger:
     # This approach works whether the script is run from the project root or from a subdirectory
     current_dir = os.path.dirname(__file__)
     if 'backend' in current_dir:
-        project_root = os.path.join(current_dir, "..", "..", "..")
+        project_root = os.path.join(current_dir, "..", "..")
         project_root = os.path.abspath(project_root)
         data_dir = os.path.join(project_root, "data")
     else:
@@ -116,7 +116,7 @@ def create_processing_config(openai_api_key: str) -> Dict[str, Any]:
     
     if 'backend' in current_dir:
         # We're in backend/processing/polish_law/, calculate path to project root
-        project_root = os.path.join(current_dir, "..", "..", "..")
+        project_root = os.path.join(current_dir, "..", "..")
         project_root = os.path.abspath(project_root)
     else:
         # We're at project root

@@ -14,3 +14,6 @@ wheels/
 
 # Documents to be processed by RAG
 data/
+
+## uv files
+uv.lock

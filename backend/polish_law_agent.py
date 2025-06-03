@@ -26,7 +26,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 # Import the enhanced agent from the new location
-from backend.agent.polish_law import create_enhanced_polish_law_agent
+from agent.polish_law import create_enhanced_polish_law_agent
 
 class PolishLawAgent:
     """
