@@ -5,12 +5,15 @@ This module creates a web API interface for the sophisticated multi-agent system
 while preserving all the architectural sophistication of the underlying components.
 The API acts as a bridge between web requests and the complex agent orchestration,
 demonstrating how to expose sophisticated functionality through simple interfaces.
+
+Note: Citation formatting is now handled by the frontend to allow for flexible
+presentation styles (numbered lists, structured displays, etc.)
 """
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import logging
 import traceback
 from datetime import datetime
@@ -25,7 +28,7 @@ logger = logging.getLogger("FastAPI-Backend")
 app = FastAPI(
     title="Enhanced Multi-Agent Compliance API",
     description="Sophisticated compliance analysis using GDPR, Polish Law, and Internal Security agents",
-    version="1.0.0"
+    version="1.1.0"  # Updated version to reflect citation improvements
 )
 
 # Enable CORS for frontend communication
@@ -71,13 +74,15 @@ class QueryRequest(BaseModel):
     """
     query: str
     session_id: Optional[str] = None  # For future session tracking
+    citation_style: Optional[str] = "numbered"  # New: Allow frontend to specify preferred citation style
     
     class Config:
         # Example for API documentation
         schema_extra = {
             "example": {
                 "query": "We need to implement employee monitoring software in our Warsaw office that tracks productivity metrics. What GDPR compliance steps do we need?",
-                "session_id": "optional-session-identifier"
+                "session_id": "optional-session-identifier",
+                "citation_style": "numbered"
             }
         }
 
@@ -87,10 +92,12 @@ class ComplianceResponse(BaseModel):
     
     This structured approach ensures consistent API responses while
     preserving all the sophisticated information your system generates.
+    Enhanced to include raw citation data for flexible frontend formatting.
     """
     success: bool
     action_plan: str
     citations: Dict[str, Any]
+    raw_citations: Optional[List[Dict[str, Any]]] = None  # New: Raw citation data for formatting
     metadata: Dict[str, Any]
     processing_time: float
     session_id: Optional[str] = None
@@ -104,11 +111,14 @@ async def analyze_compliance_query(request: QueryRequest):
     clean API interface. The key insight is that we preserve all the sophistication
     of your system while making it accessible via standard HTTP requests.
     
+    Enhanced to provide both summary citation metrics and raw citation data
+    that the frontend can format according to user preferences.
+    
     The processing flow:
     1. Validate the input query
     2. Execute the sophisticated multi-agent analysis
     3. Extract and format the results
-    4. Return structured response with all citation information
+    4. Return structured response with both summary and detailed citation information
     """
     start_time = datetime.now()
     
@@ -122,6 +132,7 @@ async def analyze_compliance_query(request: QueryRequest):
         
         # Log the incoming request for monitoring
         logger.info(f"Processing compliance query: {request.query[:100]}...")
+        logger.info(f"Requested citation style: {request.citation_style}")
         
         # Execute the sophisticated multi-agent analysis
         # This is where your existing sophisticated system does its magic
@@ -140,6 +151,40 @@ async def analyze_compliance_query(request: QueryRequest):
             "precision_rate": result.get("summary", {}).get("overall_precision_rate", 0)
         }
         
+        # Extract raw citation data for frontend formatting
+        # This allows the frontend to implement different citation styles
+        raw_citations = []
+        
+        # Collect GDPR citations
+        for citation in result.get("gdpr_citations", []):
+            raw_citations.append({
+                "source": "European Data Protection Regulation (GDPR)",
+                "text": citation.get("text", ""),
+                "article": citation.get("article", ""),
+                "chapter": citation.get("chapter", ""),
+                "type": "gdpr"
+            })
+        
+        # Collect Polish law citations
+        for citation in result.get("polish_law_citations", []):
+            raw_citations.append({
+                "source": "Polish Data Protection Implementation",
+                "text": citation.get("text", ""),
+                "article": citation.get("article", ""),
+                "law": citation.get("law", ""),
+                "type": "polish_law"
+            })
+        
+        # Collect internal policy citations
+        for citation in result.get("internal_policy_citations", []):
+            raw_citations.append({
+                "source": "Internal Security Procedures",
+                "text": citation.get("text", ""),
+                "procedure": citation.get("procedure", ""),
+                "section": citation.get("section", ""),
+                "type": "internal_policy"
+            })
+        
         # Calculate processing time
         processing_time = (datetime.now() - start_time).total_seconds()
         
@@ -149,15 +194,18 @@ async def analyze_compliance_query(request: QueryRequest):
             "domains_analyzed": ["gdpr", "polish_law", "internal_security"],
             "analysis_timestamp": start_time.isoformat(),
             "processing_time_seconds": processing_time,
-            "architecture": "component-based_with_sophisticated_orchestration"
+            "architecture": "component-based_with_sophisticated_orchestration",
+            "citation_style_requested": request.citation_style
         }
         
         logger.info(f"✅ Query processed successfully in {processing_time:.3f} seconds")
+        logger.info(f"Generated {len(raw_citations)} detailed citations")
         
         return ComplianceResponse(
             success=True,
             action_plan=action_plan,
             citations=citations_info,
+            raw_citations=raw_citations,
             metadata=metadata,
             processing_time=processing_time,
             session_id=request.session_id
@@ -203,7 +251,8 @@ async def health_check():
             "status": "healthy",
             "message": "Enhanced multi-agent system operational",
             "agents": system_summary.get("agents", {}),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "features": ["numbered_citations", "raw_citation_data", "flexible_formatting"]
         }
     except Exception as e:
         return {
@@ -219,11 +268,12 @@ async def root():
         "message": "Enhanced Multi-Agent Compliance API",
         "description": "Sophisticated GDPR, Polish Law, and Internal Security analysis",
         "endpoints": {
-            "/analyze": "POST - Analyze compliance queries",
+            "/analyze": "POST - Analyze compliance queries with flexible citation formatting",
             "/health": "GET - System health check",
             "/docs": "GET - Interactive API documentation"
         },
-        "architecture": "Component-based multi-agent system with sophisticated orchestration"
+        "architecture": "Component-based multi-agent system with sophisticated orchestration",
+        "features": ["numbered_citations", "citation_style_selection", "raw_citation_access"]
     }
 
 if __name__ == "__main__":
