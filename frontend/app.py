@@ -17,559 +17,199 @@ into clean, numbered reference lists for improved readability and professional p
 """
 
 import streamlit as st
-import requests
-import json
 import time
-import re
-from typing import Dict, Any, Optional, List, Tuple
-import pandas as pd
+from typing import Dict, Any, Optional
 
-# Configuration for the backend API
-BACKEND_URL = "http://localhost:8000"
-
-# Page configuration
-st.set_page_config(
-    page_title="Enhanced Compliance Analysis",
-    page_icon="🛡️",
-    layout="wide",
-    initial_sidebar_state="expanded"
+# Import our modular components - fixed dependency chain
+from config import PAGE_CONFIG, UI_MESSAGES, VALIDATION
+from backend_client import (
+    check_backend_health, 
+    get_backend_system_info,
+    send_query_to_backend,
+    validate_query_locally,
+    format_backend_error
+)
+from ui_components import (
+    display_app_header,
+    display_sidebar_info,
+    display_query_interface,
+    display_processing_feedback,
+    display_success_results,
+    display_error_results,
+    display_chat_history
 )
 
-def parse_citations_from_text(text: str) -> Tuple[str, List[Dict[str, str]]]:
-    """
-    Advanced citation parser that extracts citations from action plan text
-    and converts them to a structured format for numbered display.
-    
-    This function demonstrates sophisticated text processing techniques,
-    using regular expressions to identify citation patterns and extract
-    the relevant information for clean presentation.
-    
-    Args:
-        text: The action plan text containing embedded citations
-        
-    Returns:
-        tuple: (cleaned_text_without_citations, list_of_citation_objects)
-    """
-    citations = []
-    citation_counter = 1
-    
-    # Advanced regex pattern to match citation sections
-    # This pattern identifies the citation header and captures the detailed citation content
-    citation_pattern = r'AUTHORITATIVE SOURCE CITATIONS:\s*\n\n(.*?)(?=\n\n[A-Z]|\Z)'
-    
-    # Find the main citation section
-    citation_match = re.search(citation_pattern, text, re.DOTALL | re.IGNORECASE)
-    
-    if citation_match:
-        citation_section = citation_match.group(1)
-        
-        # Pattern to match individual source blocks (e.g., "European Data Protection Regulation (GDPR):")
-        source_pattern = r'([^:]+:)\s*\[(\d+)\s+with[^]]*\]\s*(.*?)(?=\n\n[^:]+:|\Z)'
-        
-        source_matches = re.findall(source_pattern, citation_section, re.DOTALL)
-        
-        for source_title, count, content in source_matches:
-            # Clean up the source title
-            clean_source = source_title.strip().rstrip(':')
-            
-            # Extract individual citations within this source
-            # Pattern to match [1], [2], etc. with their content
-            individual_pattern = r'\[(\d+)\]\s*([^[]+?)(?=\[|\Z)'
-            individual_matches = re.findall(individual_pattern, content, re.DOTALL)
-            
-            for orig_num, citation_text in individual_matches:
-                # Clean up the citation text
-                clean_text = re.sub(r'\s*✓\s*$', '', citation_text.strip())
-                clean_text = re.sub(r'\s+', ' ', clean_text)
-                
-                citations.append({
-                    'number': citation_counter,
-                    'source': clean_source,
-                    'text': clean_text,
-                    'original_number': orig_num
-                })
-                citation_counter += 1
-    
-    # Remove the entire citation section from the main text
-    cleaned_text = re.sub(citation_pattern, '', text, flags=re.DOTALL | re.IGNORECASE)
-    
-    # Clean up any remaining citation references in the main text
-    cleaned_text = re.sub(r'\[(\d+)\s+with[^]]*\]', '', cleaned_text)
-    cleaned_text = re.sub(r'\s+', ' ', cleaned_text)
-    cleaned_text = cleaned_text.strip()
-    
-    return cleaned_text, citations
 
-def format_citations_as_numbered_list(citations: List[Dict[str, str]]) -> str:
+def initialize_session_state():
     """
-    Convert structured citation data into a clean numbered list format.
+    Initialize Streamlit session state variables for chat history and session tracking.
     
-    This function takes the parsed citation data and creates a professional,
-    easy-to-read numbered list that maintains all the important legal and
-    regulatory reference information while improving readability.
-    
-    Args:
-        citations: List of citation dictionaries with source, text, etc.
-        
-    Returns:
-        str: Formatted HTML string with numbered citations
+    This centralized initialization makes it easy to understand what persistent
+    data our application maintains across user interactions. Session state is
+    crucial for compliance analysis where users build understanding through
+    multiple related queries.
     """
-    if not citations:
-        return ""
-    
-    # Group citations by source for organized presentation
-    grouped_citations = {}
-    for citation in citations:
-        source = citation['source']
-        if source not in grouped_citations:
-            grouped_citations[source] = []
-        grouped_citations[source].append(citation)
-    
-    # Build the formatted citation list
-    formatted_html = "<div style='font-size: 16px; line-height: 1.6; margin-top: 20px;'>"
-    formatted_html += "<h4>📋 AUTHORITATIVE SOURCE CITATIONS:</h4>\n\n"
-    
-    for source, source_citations in grouped_citations.items():
-        formatted_html += f"<p><strong>{source}:</strong> [{len(source_citations)} citations]</p>\n"
-        
-        for citation in source_citations:
-            formatted_html += f"<p style='margin-left: 20px; margin-bottom: 10px;'>"
-            formatted_html += f"<strong>[{citation['number']}]</strong> {citation['text']}"
-            formatted_html += "</p>\n"
-        
-        formatted_html += "\n"
-    
-    formatted_html += "</div>"
-    
-    return formatted_html
-
-def format_raw_citations(raw_citations: List[Dict[str, Any]]) -> str:
-    """
-    Format raw citation data from the backend into numbered lists.
-    
-    This function handles the structured citation data returned by the
-    enhanced backend API, converting it into the same clean numbered
-    format for consistent presentation.
-    
-    Args:
-        raw_citations: List of raw citation objects from backend
-        
-    Returns:
-        str: Formatted HTML string with numbered citations
-    """
-    if not raw_citations:
-        return ""
-    
-    # Group by source type
-    grouped = {}
-    for i, citation in enumerate(raw_citations, 1):
-        source = citation.get('source', 'Unknown Source')
-        if source not in grouped:
-            grouped[source] = []
-        
-        # Add citation number for sequential referencing
-        citation_copy = citation.copy()
-        citation_copy['number'] = i
-        grouped[source].append(citation_copy)
-    
-    # Build formatted HTML
-    formatted_html = "<div style='font-size: 16px; line-height: 1.6; margin-top: 20px;'>"
-    formatted_html += "<h4>📋 AUTHORITATIVE SOURCE CITATIONS:</h4>\n\n"
-    
-    for source, citations in grouped.items():
-        formatted_html += f"<p><strong>{source}:</strong> [{len(citations)} citations]</p>\n"
-        
-        for citation in citations:
-            formatted_html += f"<p style='margin-left: 20px; margin-bottom: 10px;'>"
-            formatted_html += f"<strong>[{citation['number']}]</strong> "
-            
-            # Format based on citation type
-            if citation.get('type') == 'gdpr':
-                if citation.get('article'):
-                    formatted_html += f"Article {citation['article']} "
-                if citation.get('chapter'):
-                    formatted_html += f"({citation['chapter']}): "
-            elif citation.get('type') == 'polish_law':
-                if citation.get('article'):
-                    formatted_html += f"Article {citation['article']} "
-                if citation.get('law'):
-                    formatted_html += f"({citation['law']}): "
-            elif citation.get('type') == 'internal_policy':
-                if citation.get('procedure'):
-                    formatted_html += f"Procedure {citation['procedure']} "
-                if citation.get('section'):
-                    formatted_html += f"(Section {citation['section']}): "
-            
-            formatted_html += citation.get('text', '')
-            formatted_html += "</p>\n"
-        
-        formatted_html += "\n"
-    
-    formatted_html += "</div>"
-    
-    return formatted_html
-
-def check_backend_health() -> bool:
-    """
-    Check if the sophisticated backend system is operational.
-    
-    This function provides immediate feedback about system availability,
-    which is crucial for user experience with complex AI systems.
-    """
-    try:
-        response = requests.get(f"{BACKEND_URL}/health", timeout=5)
-        return response.status_code == 200 and response.json().get("status") == "healthy"
-    except requests.exceptions.RequestException:
-        return False
-
-def send_query_to_backend(query: str, session_id: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Send a compliance query to the sophisticated backend system.
-    
-    This function handles the communication with your multi-agent system,
-    providing proper error handling and user feedback for the complex
-    processing that happens behind the scenes.
-    
-    Enhanced to request numbered citation formatting from the backend.
-    """
-    try:
-        payload = {
-            "query": query,
-            "citation_style": "numbered"  # Request numbered citation style
-        }
-        if session_id:
-            payload["session_id"] = session_id
-        
-        response = requests.post(
-            f"{BACKEND_URL}/analyze",
-            json=payload,
-            timeout=60  # Allow time for sophisticated analysis
-        )
-        
-        if response.status_code == 200:
-            return response.json()
-        else:
-            error_detail = response.json().get("detail", "Unknown error")
-            return {
-                "success": False,
-                "error": f"Backend error: {error_detail}",
-                "status_code": response.status_code
-            }
-            
-    except requests.exceptions.Timeout:
-        return {
-            "success": False,
-            "error": "Analysis timeout - your query might be very complex. Please try a more specific question.",
-            "timeout": True
-        }
-    except requests.exceptions.RequestException as e:
-        return {
-            "success": False,
-            "error": f"Connection error: {str(e)}",
-            "connection_error": True
-        }
-
-def display_citation_analysis(citations: Dict[str, Any]):
-    """
-    Display the sophisticated citation analysis in an accessible format.
-    
-    This function demonstrates how to present complex technical information
-    (your sophisticated citation system) in a way that's valuable to users
-    without overwhelming them with technical details.
-    """
-    st.subheader("📊 Citation Analysis")
-    
-    # Create metrics display for immediate insight
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric(
-            "Total Citations", 
-            citations.get("total_citations", 0),
-            help="Total number of authoritative sources analyzed"
-        )
-    
-    with col2:
-        st.metric(
-            "GDPR References", 
-            citations.get("gdpr_citations", 0),
-            help="European data protection regulation citations"
-        )
-    
-    with col3:
-        st.metric(
-            "Polish Law", 
-            citations.get("polish_law_citations", 0),
-            help="Polish data protection implementation citations"
-        )
-    
-    with col4:
-        st.metric(
-            "Security Procedures", 
-            citations.get("security_citations", 0),
-            help="Internal security procedure references"
-        )
-    
-    # Precision quality indicator
-    precision_rate = citations.get("precision_rate", 0)
-    if precision_rate > 0:
-        st.metric(
-            "Analysis Precision", 
-            f"{precision_rate}%",
-            help="Quality score of the citation analysis - higher values indicate more detailed structural analysis"
-        )
-
-def display_system_metadata(metadata: Dict[str, Any]):
-    """
-    Display metadata about the sophisticated analysis process.
-    
-    This helps users understand the sophistication they're receiving
-    while building confidence in the system's capabilities.
-    """
-    with st.expander("🔍 Analysis Details", expanded=False):
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.write("**Analysis Architecture:**")
-            st.write(f"• System: {metadata.get('agent_coordination', 'Multi-agent')}")
-            st.write(f"• Processing Time: {metadata.get('processing_time_seconds', 0):.2f} seconds")
-            st.write(f"• Timestamp: {metadata.get('analysis_timestamp', 'Unknown')}")
-            st.write(f"• Citation Style: {metadata.get('citation_style_requested', 'numbered')}")
-        
-        with col2:
-            st.write("**Domains Analyzed:**")
-            domains = metadata.get('domains_analyzed', [])
-            for domain in domains:
-                st.write(f"• {domain.replace('_', ' ').title()}")
-            
-            features = metadata.get('features', [])
-            if features:
-                st.write("**Enhanced Features:**")
-                for feature in features:
-                    st.write(f"• {feature.replace('_', ' ').title()}")
-
-def render_action_plan_with_citations(action_plan_text: str, raw_citations: List[Dict[str, Any]] = None):
-    """
-    Process and render action plan with sophisticated citation formatting.
-    
-    This function demonstrates advanced text processing techniques for
-    professional document presentation. It separates the main content
-    from citations and formats them appropriately for legal and
-    compliance documentation standards.
-    
-    The approach here teaches an important concept: when dealing with
-    complex information systems, it's often better to separate content
-    processing from presentation logic. This makes the system more
-    maintainable and allows for different formatting styles.
-    
-    Args:
-        action_plan_text: The main action plan content
-        raw_citations: Optional structured citation data from backend
-    """
-    
-    # First, try to use structured citation data if available
-    if raw_citations and len(raw_citations) > 0:
-        st.markdown("### 📋 Comprehensive Action Plan")
-        
-        # Display the main action plan (should be clean of citation formatting)
-        clean_text = re.sub(r'AUTHORITATIVE SOURCE CITATIONS:.*', '', action_plan_text, flags=re.DOTALL | re.IGNORECASE)
-        clean_text = clean_text.strip()
-        
-        st.markdown(f'<div style="font-size: 18px; line-height: 1.6;">{clean_text}</div>', 
-                   unsafe_allow_html=True)
-        
-        # Display formatted citations separately
-        formatted_citations = format_raw_citations(raw_citations)
-        st.markdown(formatted_citations, unsafe_allow_html=True)
-        
-    else:
-        # Fallback: Parse citations from the text itself
-        st.markdown("### 📋 Comprehensive Action Plan")
-        
-        # Use our sophisticated citation parser
-        cleaned_text, parsed_citations = parse_citations_from_text(action_plan_text)
-        
-        # Display the cleaned action plan
-        st.markdown(f'<div style="font-size: 18px; line-height: 1.6;">{cleaned_text}</div>', 
-                   unsafe_allow_html=True)
-        
-        # Display formatted citations if any were found
-        if parsed_citations:
-            formatted_citations = format_citations_as_numbered_list(parsed_citations)
-            st.markdown(formatted_citations, unsafe_allow_html=True)
-        else:
-            # If no structured citations found, display original text
-            st.markdown(f'<div style="font-size: 18px; line-height: 1.6;">{action_plan_text}</div>', 
-                       unsafe_allow_html=True)
-
-def main():
-    """
-    Main application interface that provides sophisticated compliance analysis
-    through an intuitive chat-like interface.
-    
-    Enhanced with advanced citation formatting capabilities that demonstrate
-    how to present complex legal and regulatory information in accessible,
-    professional formats.
-    """
-    # Header with system branding
-    st.title("🛡️ Enhanced Compliance Analysis System")
-    st.markdown("""
-    **Sophisticated multi-agent analysis** combining GDPR expertise, Polish law knowledge, 
-    and internal security procedures to provide comprehensive compliance guidance.
-    
-    *Now featuring advanced citation formatting for professional documentation.*
-    """)
-    
-    # Sidebar for system information and settings
-    with st.sidebar:
-        st.header("🔧 System Status")
-        
-        # Check backend health with visual feedback
-        if check_backend_health():
-            st.success("✅ Backend System Operational")
-            st.info("All agents connected and ready for analysis")
-        else:
-            st.error("❌ Backend System Unavailable")
-            st.warning("Please ensure the FastAPI backend is running on port 8000")
-            st.stop()
-        
-        st.header("📋 Query Guidelines")
-        st.markdown("""
-        **Effective queries should include:**
-        - Specific business scenario
-        - Geographic context (EU/Poland)
-        - Data types involved
-        - Technology or vendors mentioned
-        
-        **Example topics:**
-        - Employee monitoring systems
-        - Cross-border data transfers
-        - Cloud service implementations
-        - Incident response procedures
-        """)
-        
-        st.header("📄 Citation Features")
-        st.info("""
-        **Enhanced citation system:**
-        - Numbered reference lists
-        - Source categorization
-        - Clean, professional formatting
-        - Legal document standards
-        """)
-    
-    # Main chat interface
-    st.header("💬 Compliance Query Interface")
-    
-    # Initialize session state for chat history
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
     
-    # Query input with sophisticated placeholder
+    if "session_id" not in st.session_state:
+        # Create a simple session ID for potential backend session tracking
+        st.session_state.session_id = f"session_{int(time.time())}"
+
+
+def check_system_readiness() -> tuple[bool, Optional[Dict[str, Any]]]:
+    """
+    Verify that the backend system is ready for processing.
+    
+    This implements the "fail fast" principle - we check system readiness
+    before allowing users to invest time in formulating questions. This
+    prevents frustration and provides clear feedback when systems are unavailable.
+    
+    Returns:
+        tuple: (system_ready: bool, system_info: Optional[Dict])
+    """
+    backend_healthy = check_backend_health()
+    
+    if not backend_healthy:
+        return False, None
+    
+    # Get detailed system information for the sidebar display
+    system_info = get_backend_system_info()
+    return True, system_info
+
+
+def process_user_query(query: str) -> Dict[str, Any]:
+    """
+    Process a user query through the backend system with proper error handling.
+    
+    This function demonstrates clean separation of concerns - it orchestrates
+    the query processing workflow without getting involved in UI details or
+    backend communication specifics. This makes it easy to modify the
+    processing logic without affecting other parts of the application.
+    
+    Args:
+        query: The validated user compliance question
+        
+    Returns:
+        Dict containing processing results or error information
+    """
+    # Show processing feedback to keep users informed
+    display_processing_feedback()
+    
+    # Send query to the sophisticated backend system
+    with st.spinner("🧠 Analyzing your compliance query with multi-agent system..."):
+        result = send_query_to_backend(query, st.session_state.session_id)
+    
+    # Store successful queries in chat history for session context
+    if result.get("success", False):
+        st.session_state.chat_history.append({
+            "query": query,
+            "response": result,
+            "timestamp": time.time()
+        })
+    
+    return result
+
+
+def handle_query_submission() -> Optional[str]:
+    """
+    Handle the query interface and validation logic.
+    
+    This function encapsulates the query input and validation workflow,
+    demonstrating how to build reusable interaction patterns. By separating
+    this logic, we can easily modify validation rules or input methods
+    without affecting the main application flow.
+    
+    Returns:
+        Optional[str]: Validated query ready for processing, or None if invalid
+    """
+    st.header("💬 Compliance Query Interface")
+    
+    # Query input with sophisticated placeholder and help text
     query = st.text_area(
         "Enter your compliance question:",
         height=100,
-        placeholder="""Example: "We're implementing employee monitoring software in our Warsaw office that tracks productivity metrics and integrates with our German cloud service provider. What specific GDPR compliance steps do we need, and how do our internal security procedures apply to this cross-border data processing scenario?""",
-        help="Describe your business scenario with specific details about location, technology, and data types for the most accurate analysis with properly formatted citations."
+        placeholder=UI_MESSAGES["query_placeholder"],
+        help=UI_MESSAGES["query_help"]
     )
     
-    # Process query button with clear call-to-action
+    # Analysis button
     if st.button("🔍 Analyze Compliance Requirements", type="primary"):
-        if not query.strip():
-            st.warning("Please enter a compliance question to analyze.")
-            return
+        # Perform local validation before processing
+        validation_result = validate_query_locally(query)
         
-        if len(query.strip()) < 10:
-            st.warning("Please provide a more detailed question for accurate analysis.")
-            return
+        if not validation_result.get("valid", False):
+            # Display validation error with helpful guidance
+            st.warning(validation_result.get("error", "Invalid query"))
+            
+            if validation_result.get("suggestion"):
+                st.info(f"💡 **Suggestion:** {validation_result['suggestion']}")
+            
+            return None
         
-        # Show processing feedback
-        with st.spinner("🧠 Analyzing your query with sophisticated multi-agent system..."):
-            st.info("**Processing Steps:**\n"
-                   "1. 🇪🇺 GDPR Agent: Analyzing European data protection requirements\n"
-                   "2. 🇵🇱 Polish Law Agent: Reviewing Polish implementation specifics\n"
-                   "3. 🔒 Security Agent: Evaluating internal procedure requirements\n"
-                   "4. 📊 Integration Agent: Creating comprehensive action plan\n"
-                   "5. 🔗 Citation Agent: Formatting authoritative references")
-            
-            # Send query to sophisticated backend
-            result = send_query_to_backend(query)
-        
-        # Handle results with comprehensive feedback
-        if result.get("success", False):
-            # Store in chat history for session continuity
-            st.session_state.chat_history.append({
-                "query": query,
-                "response": result,
-                "timestamp": time.time()
-            })
-            
-            # Display the sophisticated analysis results
-            st.success("✅ Analysis Complete - Comprehensive compliance guidance generated with formatted citations")
-            
-            # Main action plan with sophisticated citation formatting
-            action_plan = result.get("action_plan", "No action plan generated")
-            raw_citations = result.get("raw_citations", [])
-            
-            # Use our enhanced citation rendering
-            render_action_plan_with_citations(action_plan, raw_citations)
-            
-            # Citation analysis display
-            citations = result.get("citations", {})
-            if citations.get("total_citations", 0) > 0:
-                display_citation_analysis(citations)
-            
-            # System metadata for transparency
-            metadata = result.get("metadata", {})
-            if metadata:
-                display_system_metadata(metadata)
-            
-        else:
-            # Error handling with helpful guidance
-            st.error("❌ Analysis Error")
-            error_message = result.get("error", "Unknown error occurred")
-            st.write(f"**Error Details:** {error_message}")
-            
-            if result.get("timeout"):
-                st.info("**Suggestion:** Try breaking your question into smaller, more specific parts.")
-            elif result.get("connection_error"):
-                st.info("**Suggestion:** Check that the backend server is running and accessible.")
+        return query
     
-    # Chat history display for session context
-    if st.session_state.chat_history:
-        st.header("📝 Session History")
-        
-        for i, chat_item in enumerate(reversed(st.session_state.chat_history[-3:])):  # Show last 3
-            with st.expander(f"Query {len(st.session_state.chat_history) - i}: {chat_item['query'][:60]}..."):
-                st.write("**Query:**", chat_item['query'])
-                
-                response = chat_item['response']
-                if response.get('success'):
-                    st.write("**Action Plan:**")
-                    
-                    # Use enhanced citation formatting for history too
-                    action_plan = response.get('action_plan', '')
-                    raw_citations = response.get('raw_citations', [])
-                    
-                    if raw_citations:
-                        # Clean text and show citations separately
-                        clean_text = re.sub(r'AUTHORITATIVE SOURCE CITATIONS:.*', '', action_plan, flags=re.DOTALL | re.IGNORECASE)
-                        st.markdown(clean_text.strip())
-                        
-                        st.write("**Citations:**")
-                        st.write(f"- {len(raw_citations)} authoritative sources referenced")
-                    else:
-                        # Parse and display
-                        cleaned_text, parsed_citations = parse_citations_from_text(action_plan)
-                        st.markdown(cleaned_text)
-                        
-                        if parsed_citations:
-                            st.write(f"**Citations:** {len(parsed_citations)} authoritative sources")
-                    
-                    citations = response.get('citations', {})
-                    if citations.get('total_citations', 0) > 0:
-                        st.write(f"**Total Sources:** {citations['total_citations']}")
-                else:
-                    st.write("**Error:**", response.get('error', 'Unknown error'))
+    return None
 
+
+def main():
+    """
+    Main application flow orchestrating all components.
+    
+    This simplified main function demonstrates how to build robust applications
+    by composing smaller, focused functions. Each function has a single
+    responsibility, making the code easier to understand, test, and maintain.
+    
+    The flow follows a clear pattern:
+    1. Initialize application state
+    2. Check system readiness  
+    3. Display header and navigation
+    4. Handle user interactions
+    5. Process and display results
+    6. Maintain session context
+    
+    This pattern can be applied to any complex application to maintain
+    clarity and reduce cognitive load for developers.
+    """
+    # Configure Streamlit page settings
+    st.set_page_config(**PAGE_CONFIG)
+    
+    # Initialize session management
+    initialize_session_state()
+    
+    # Check system readiness before proceeding
+    system_ready, system_info = check_system_readiness()
+    
+    # Render main application header
+    display_app_header()
+    
+    # Render sidebar with system status and guidance
+    display_sidebar_info(system_ready, system_info)
+    
+    # Stop execution if system is not ready
+    if not system_ready:
+        st.error("🚫 **System Not Ready:** Please ensure the FastAPI backend is running on port 8000.")
+        st.info("💡 **Quick Fix:** Check that your backend server is started and accessible.")
+        st.stop()
+    
+    # Handle query input and validation
+    user_query = handle_query_submission()
+    
+    # Process query if user submitted one
+    if user_query:
+        # Process the query using the backend system
+        processing_result = process_user_query(user_query)
+        
+        # Display results based on success or failure
+        if processing_result.get("success", False):
+            display_success_results(processing_result)
+        else:
+            display_error_results(processing_result)
+    
+    # Display session history for context and learning
+    display_chat_history(st.session_state.chat_history)
+
+
+# Application entry point with clean module structure
 if __name__ == "__main__":
     main()
