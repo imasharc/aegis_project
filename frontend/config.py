@@ -39,8 +39,7 @@ UI_MESSAGES = {
 1. 🇪🇺 GDPR Agent: Analyzing European data protection requirements
 2. 🇵🇱 Polish Law Agent: Reviewing Polish implementation specifics
 3. 🔒 Security Agent: Evaluating internal procedure requirements
-4. 📊 Integration Agent: Creating comprehensive action plan
-5. 🔗 Citation Agent: Formatting authoritative references""",
+4. 📊🔗 Summarization Agent: Creating comprehensive action plan with authoritative citations""",
     "query_placeholder": """Example: "We're implementing employee monitoring software in our Warsaw office that tracks productivity metrics and integrates with our German cloud service provider. What specific GDPR compliance steps do we need, and how do our internal security procedures apply to this cross-border data processing scenario?\"""",
     "query_help": "Describe your business scenario with specific details about location, technology, and data types for the most accurate analysis with properly formatted citations."
 }
