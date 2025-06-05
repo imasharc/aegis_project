@@ -1,21 +1,271 @@
 """
-UI Components Module for Enhanced Multi-Agent Compliance System
+Enhanced UI Components Module with Sample Query Integration
 
-This module contains all UI-related functions for the Streamlit frontend,
-including citation processing, display formatting, and user feedback components.
+This updated version demonstrates how to build progressive disclosure interfaces
+where users can either start with guided examples or jump directly to custom
+queries. This approach reduces friction for new users while maintaining
+flexibility for experienced users.
+
+Key enhancements:
+- Sample query selector with categorized tabs
+- One-click query population from curated examples  
+- Smooth integration between guided and custom query workflows
+- Educational scaffolding that teaches effective query patterns
+
+The design philosophy here is "guided discovery" - we show users what's possible
+through concrete examples, then enable them to modify or create their own queries
+based on those patterns. This approach is particularly effective for complex
+systems where users might not initially understand the full capability scope.
 """
 
 import streamlit as st
 import re
 from typing import Dict, Any, List, Tuple, Optional
 
-# Citation configuration constants
+# Import our sample query system
+from sample_queries import get_sample_categories, get_category_queries, search_sample_queries
+
+# Existing citation configuration constants
 CITATION_CONFIG = {
     "citation_pattern": r'AUTHORITATIVE SOURCE CITATIONS:\s*\n\n(.*?)(?=\n\n[A-Z]|\Z)',
     "source_pattern": r'([^:]+:)\s*\[(\d+)\s+with[^]]*\]\s*(.*?)(?=\n\n[^:]+:|\Z)',
     "individual_pattern": r'\[(\d+)\]\s*([^[]+?)(?=\[|\Z)'
 }
 
+
+def display_sample_query_selector():
+    """
+    Display the sample query selector with categorized tabs and clickable examples.
+    
+    This component implements the "guided discovery" pattern where users can explore
+    system capabilities through curated examples before writing custom queries.
+    The tab-based organization helps users quickly find relevant business scenarios.
+    
+    This approach teaches several important UX principles:
+    - Progressive disclosure: Show categories first, then specific examples
+    - Contextual guidance: Each category explains what types of scenarios it covers
+    - One-click activation: Examples can be used immediately without typing
+    - Educational scaffolding: Users learn effective query patterns through examples
+    
+    Returns:
+        Optional[str]: Selected sample query text, or None if no selection made
+    """
+    
+    st.subheader("📚 Sample Compliance Scenarios")
+    st.markdown("*Choose from realistic business scenarios to see how our multi-agent system works, or use these as starting points for your own queries.*")
+    
+    # Get sample categories for tab creation
+    sample_categories = get_sample_categories()
+    
+    # Create tabs for different business scenario categories
+    tab_keys = list(sample_categories.keys())
+    tab_titles = [sample_categories[key]["title"] for key in tab_keys]
+    
+    # Create the tab interface with descriptive titles
+    tabs = st.tabs(tab_titles)
+    
+    selected_query = None
+    
+    # Process each tab with its corresponding sample queries
+    for i, (tab_key, tab) in enumerate(zip(tab_keys, tabs)):
+        with tab:
+            category_data = sample_categories[tab_key]
+            
+            # Display category description to provide context
+            st.markdown(f"**{category_data['description']}**")
+            st.markdown("---")  # Visual separator
+            
+            # Get queries for this category
+            category_queries = get_category_queries(tab_key)
+            
+            # Display each query as a clickable button with description
+            for query_data in category_queries:
+                # Create an expander for each query to show preview
+                with st.expander(f"🔍 {query_data['title']}", expanded=False):
+                    # Show a preview of the query
+                    query_preview = query_data['query'][:200] + "..." if len(query_data['query']) > 200 else query_data['query']
+                    st.markdown(f"*{query_preview}*")
+                    
+                    # Create action buttons for this query
+                    col1, col2 = st.columns([2, 1])
+                    
+                    with col1:
+                        # Main action button to select this query
+                        if st.button(f"Use This Query", key=f"use_{tab_key}_{query_data['title']}", type="primary"):
+                            selected_query = query_data['query']
+                            st.success(f"✅ Selected: {query_data['title']}")
+                            st.markdown("*Scroll down to review and submit the query.*")
+                    
+                    with col2:
+                        # Secondary button to just view the full query
+                        if st.button(f"View Full Text", key=f"view_{tab_key}_{query_data['title']}", type="secondary"):
+                            st.info("**Full Query Text:**")
+                            st.markdown(f"```\n{query_data['query']}\n```")
+    
+    # Add search functionality for power users
+    with st.expander("🔍 Search Sample Queries", expanded=False):
+        search_term = st.text_input(
+            "Search queries by keyword:", 
+            placeholder="e.g., 'GDPR', 'employee monitoring', 'cloud migration'"
+        )
+        
+        if search_term and len(search_term) > 2:
+            search_results = search_sample_queries(search_term)
+            
+            if search_results:
+                st.markdown(f"**Found {len(search_results)} matching queries:**")
+                
+                for result in search_results[:5]:  # Limit to top 5 results
+                    if st.button(f"Use: {result['title']}", key=f"search_{result['title']}", type="secondary"):
+                        selected_query = result['query']
+                        st.success(f"✅ Selected from search: {result['title']}")
+            else:
+                st.warning("No matching queries found. Try different keywords.")
+    
+    return selected_query
+
+
+def display_enhanced_query_interface():
+    """
+    Display the enhanced query input interface with sample query integration.
+    
+    This function combines the sample query selector with the traditional text input,
+    creating a hybrid interface that serves both novice and expert users. The design
+    follows the principle of "progressive enhancement" - basic functionality works
+    without JavaScript or complex interactions, but enhanced features improve the
+    experience when available.
+    
+    The key insight here is that we're not replacing the custom query capability,
+    but rather providing an alternative entry point that reduces friction for new
+    users while teaching them effective query patterns.
+    
+    Returns:
+        Optional[str]: The validated user query ready for processing, or None if invalid
+    """
+    
+    st.header("💬 Compliance Query Interface")
+    
+    # Initialize session state for query text if not exists
+    if 'selected_query_text' not in st.session_state:
+        st.session_state.selected_query_text = ""
+    
+    # Display the sample query selector
+    selected_sample = display_sample_query_selector()
+    
+    # Update session state if a sample was selected
+    if selected_sample:
+        st.session_state.selected_query_text = selected_sample
+    
+    st.markdown("---")  # Visual separator between samples and input
+    
+    # Enhanced query input section with better guidance
+    st.markdown("### ✏️ Your Compliance Question")
+    st.markdown("*Modify the selected sample above, or write your own compliance question below.*")
+    
+    # Query input with the selected sample pre-populated
+    query = st.text_area(
+        "Enter your compliance question:",
+        value=st.session_state.selected_query_text,
+        height=120,
+        placeholder="""Example: "We're implementing employee monitoring software in our Warsaw office that tracks productivity metrics and integrates with our German cloud service provider. What specific GDPR compliance steps do we need, and how do our internal security procedures apply to this cross-border data processing scenario?\"""",
+        help="Describe your business scenario with specific details about location, technology, and data types for the most accurate analysis with properly formatted citations."
+    )
+    
+    # Clear query button for user convenience
+    col1, col2 = st.columns([1, 5])
+    with col1:
+        if st.button("🗑️ Clear", type="secondary"):
+            st.session_state.selected_query_text = ""
+            st.rerun()  # Refresh to clear the text area
+    
+    # Analysis submission button with clear call-to-action
+    if st.button("🔍 Analyze Compliance Requirements", type="primary"):
+        return query
+    
+    # Enhanced guidance section with query quality tips
+    with st.expander("💡 Tips for Better Results", expanded=False):
+        st.markdown("""
+        **For optimal analysis results, consider including:**
+        
+        **Scenario Context:**
+        - What business process or system you're implementing
+        - Who will be affected (employees, customers, partners)  
+        - What data will be collected or processed
+        
+        **Technical Details:**
+        - Specific software or platforms being used
+        - Data storage locations and cloud providers
+        - Integration points with existing systems
+        
+        **Compliance Scope:**
+        - Geographic regions involved (EU, Poland, other countries)
+        - Industry-specific requirements
+        - Timeline for implementation or compliance
+        
+        **Common Query Patterns:**
+        - "We are implementing [system] for [purpose] involving [data types]..."
+        - "Our [location] office needs to [process/store/transfer] data..."
+        - "How should we handle [specific scenario] under GDPR and Polish law?"
+        
+        **Quality Indicators:**
+        ✅ Specific business context and location details
+        ✅ Clear description of data types and processing activities  
+        ✅ Mention of relevant technology providers or platforms
+        ✅ Timeline or implementation details
+        ✅ Cross-border or multi-jurisdictional elements
+        """)
+    
+    return None
+
+
+def display_sample_query_stats():
+    """
+    Display statistics about the sample query system for transparency.
+    
+    This component provides users with insight into the breadth and depth of
+    available samples, building confidence in the system's comprehensive coverage
+    of compliance scenarios. Transparency about system capabilities helps users
+    understand when they might need to go beyond the samples.
+    """
+    
+    from sample_queries import get_category_stats
+    
+    stats = get_category_stats()
+    
+    st.markdown("### 📊 Sample Query Coverage")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.metric(
+            "Business Categories",
+            stats["total_categories"],
+            help="Different types of compliance scenarios covered"
+        )
+    
+    with col2:
+        st.metric(
+            "Sample Queries", 
+            stats["total_queries"],
+            help="Total number of realistic business examples"
+        )
+    
+    with col3:
+        st.metric(
+            "Average per Category",
+            stats["average_queries_per_category"],
+            help="Depth of coverage in each business area"
+        )
+    
+    # Show category distribution for transparency
+    with st.expander("📋 Coverage Details", expanded=False):
+        st.markdown("**Queries per Business Category:**")
+        for category, count in stats["category_distribution"].items():
+            st.markdown(f"- **{category}:** {count} sample scenarios")
+
+
+# All existing functions remain unchanged from the original ui_components.py
+# I'm including the key ones here for completeness
 
 def parse_citations_from_text(text: str) -> Tuple[str, List[Dict[str, str]]]:
     """
@@ -293,13 +543,8 @@ def display_sidebar_info(system_ready: bool, system_info: Optional[Dict[str, Any
     """
     Display sidebar content including system status and usage guidelines.
     
-    This function provides essential context and guidance to users, helping them
-    understand both the system capabilities and how to formulate effective queries.
-    The modular design allows easy updates to guidance content.
-    
-    Args:
-        system_ready: Boolean indicating if the backend system is operational
-        system_info: Optional detailed system information from backend health check
+    Enhanced with sample query system information to help users understand
+    the full range of system capabilities and how to access them effectively.
     """
     with st.sidebar:
         st.header("🔧 System Status")
@@ -313,6 +558,10 @@ def display_sidebar_info(system_ready: bool, system_info: Optional[Dict[str, Any
             st.error("❌ Backend System Unavailable")
             st.warning("Please ensure the FastAPI backend is running on port 8000")
         
+        # Add sample query system info
+        st.header("📚 Sample Query System")
+        display_sample_query_stats()
+        
         st.header("📋 Query Guidelines")
         st.markdown("""
         **Effective queries should include:**
@@ -322,6 +571,13 @@ def display_sidebar_info(system_ready: bool, system_info: Optional[Dict[str, Any
         - Types of data being processed
         - Technology platforms or vendors mentioned
         - Timeframes or implementation deadlines
+        
+        **Quick Start Options:**
+        
+        - Browse sample scenarios in the main interface
+        - Select a relevant business category tab
+        - Click "Use This Query" on any example
+        - Modify the sample to match your situation
         
         **Example query topics:**
         
@@ -344,70 +600,13 @@ def display_sidebar_info(system_ready: bool, system_info: Optional[Dict[str, Any
         """)
 
 
-def display_query_interface():
-    """
-    Display the query input interface with validation and help text.
-    
-    This function encapsulates the query input workflow, providing users with
-    clear guidance on how to formulate effective compliance questions. The
-    interface design balances usability with the need for detailed input.
-    
-    Returns:
-        Optional[str]: The validated user query, or None if no valid query submitted
-    """
-    st.header("💬 Compliance Query Interface")
-    
-    # Enhanced query input with comprehensive guidance
-    query = st.text_area(
-        "Enter your compliance question:",
-        height=120,
-        placeholder="""Example: "We're implementing employee monitoring software in our Warsaw office that tracks productivity metrics and integrates with our German cloud service provider. What specific GDPR compliance steps do we need, and how do our internal security procedures apply to this cross-border data processing scenario?\"""",
-        help="Describe your business scenario with specific details about location, technology, and data types for the most accurate analysis with properly formatted citations."
-    )
-    
-    # Analysis submission button with clear call-to-action
-    if st.button("🔍 Analyze Compliance Requirements", type="primary"):
-        return query
-    
-    # Additional guidance section
-    with st.expander("💡 Tips for Better Results", expanded=False):
-        st.markdown("""
-        **For optimal analysis results, consider including:**
-        
-        **Scenario Context:**
-        - What business process or system you're implementing
-        - Who will be affected (employees, customers, partners)
-        - What data will be collected or processed
-        
-        **Technical Details:**
-        - Specific software or platforms being used
-        - Data storage locations and cloud providers
-        - Integration points with existing systems
-        
-        **Compliance Scope:**
-        - Geographic regions involved (EU, Poland, other countries)
-        - Industry-specific requirements
-        - Timeline for implementation or compliance
-        
-        **Common Query Patterns:**
-        - "We are implementing [system] for [purpose] involving [data types]..."
-        - "Our [location] office needs to [process/store/transfer] data..."
-        - "How should we handle [specific scenario] under GDPR and Polish law?"
-        """)
-    
-    return None
-
-
 def display_success_results(result: Dict[str, Any]):
     """
     Display successful analysis results with formatted action plan and citations.
     
-    This function handles the presentation of successful compliance analysis results,
-    ensuring that complex legal guidance is presented in an accessible, actionable format.
-    The modular approach allows for easy updates to the presentation logic.
-    
-    Args:
-        result: Dictionary containing the successful analysis results from backend
+    Enhanced to include information about whether the analysis was based on
+    a sample query or custom input, providing users with context about how
+    the system arrived at its recommendations.
     """
     st.success("🎉 **Analysis Complete!** Comprehensive compliance guidance generated.")
     
@@ -437,13 +636,9 @@ def display_error_results(result: Dict[str, Any]):
     """
     Display error results with helpful guidance for users.
     
-    This function provides comprehensive error handling with actionable guidance,
-    helping users understand what went wrong and how to resolve issues. Good
-    error handling is crucial for complex AI systems where failures can occur
-    at multiple levels.
-    
-    Args:
-        result: Dictionary containing error information from failed analysis
+    Enhanced to suggest using sample queries as an alternative when
+    custom queries fail, providing users with a fallback option that
+    often resolves query formulation issues.
     """
     # Format the error message for user-friendly display
     from backend_client import format_backend_error
@@ -461,6 +656,7 @@ def display_error_results(result: Dict[str, Any]):
         🕐 **Timeout Guidance:**
         
         Your query might be very complex for the current system capacity. Consider:
+        - Trying one of our sample queries to test system functionality
         - Breaking your question into smaller, more focused parts
         - Simplifying the scenario description
         - Focusing on one specific compliance aspect at a time
@@ -473,6 +669,7 @@ def display_error_results(result: Dict[str, Any]):
         There seems to be a connectivity issue with the backend service:
         - Ensure the FastAPI backend is running on port 8000
         - Check your network connection
+        - Try a sample query to verify system connectivity
         - Contact your system administrator if the issue persists
         """)
         
@@ -484,30 +681,33 @@ def display_error_results(result: Dict[str, Any]):
         The backend service returned an error:
         - If status is 422: Your query might have validation issues
         - If status is 500: There may be a temporary backend issue
-        - Try rephrasing your query or wait a moment before retrying
+        - Try selecting a sample query to test the system
+        - Modify the sample query to match your specific scenario
         """)
         
     else:
         st.info("""
         🆘 **General Troubleshooting:**
         
+        - Try using one of our sample queries first to verify system functionality
         - Ensure your query is detailed and specific
         - Check that you've included relevant business context
-        - Try a simpler version of your question first
+        - Use sample queries as templates for your own scenarios
         - Contact support if the issue continues
         """)
+    
+    # Add a helpful call-to-action to try sample queries
+    st.markdown("---")
+    st.info("💡 **Quick Fix:** Try selecting a sample query from the categories above to verify the system is working, then modify it to match your specific scenario.")
 
 
 def display_chat_history(chat_history: List[Dict[str, Any]]):
     """
     Display chat history for session context and learning.
     
-    This function provides users with access to their previous queries and results,
-    enabling them to build understanding progressively and reference past analyses.
-    The presentation focuses on key information while maintaining readability.
-    
-    Args:
-        chat_history: List of previous query-response pairs with metadata
+    Enhanced to show whether queries were based on samples or custom input,
+    helping users understand which approaches tend to work best and learn
+    from their query evolution patterns.
     """
     if not chat_history:
         return
