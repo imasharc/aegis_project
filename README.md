@@ -181,8 +181,7 @@ The AEGIS project can be set up using several different Python environment manag
 **Understanding Your Options:**
 
 - **Traditional pip + venv**: The standard Python approach that works everywhere and is well-documented. Choose this if you're new to Python or want maximum compatibility.
-- **uv**: A modern, extremely fast package installer and environment manager written in Rust. Choose this if you want faster installations and more efficient dependency resolution.
-- **conda**: A comprehensive package and environment manager that handles both Python and non-Python dependencies. Choose this if you work with data science libraries or need complex dependency management.
+- **uv**: A modern, extremely fast package installer and environment manager written in Rust. Choose this if you want faster installations and more efficient dependency resolution.]
 
 **1. Clone and Prepare the Repository**
 
@@ -190,156 +189,7 @@ First, let's get the code and navigate to the project directory. This step is th
 
 ```bash
 # Clone the repository to your local machine
-git clone <repository-url>
-cd aegis-project
-```
-
-**2. Create Your Python Environment**
-
-Now choose one of the following approaches based on your preference:
-
-**Option A: Traditional pip + venv (Recommended for beginners)**
-
-This uses Python's built-in virtual environment capabilities and is the most widely supported approach:
-
-```bash
-# Create a Python virtual environment to isolate dependencies
-python -m venv .venv
-
-# Activate the virtual environment
-# On Windows:
-.venv\Scripts\activate
-# On macOS/Linux:
-source .venv/bin/activate
-
-# Upgrade pip to ensure you have the latest package installer
-python -m pip install --upgrade pip
-```
-
-**Option B: Using uv (Fastest installation)**
-
-uv is a modern Python package installer that's significantly faster than pip and provides better dependency resolution:
-
-```bash
-# Install uv if you haven't already (you only need to do this once on your system)
-# On macOS/Linux:
-curl -LsSf https://astral.sh/uv/install.sh | sh
-# On Windows (PowerShell):
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-
-# Create and activate a virtual environment with uv
-uv venv .venv
-
-# Activate the environment
-# On Windows:
-.venv\Scripts\activate
-# On macOS/Linux:
-source .venv/bin/activate
-```
-
-**Option C: Using conda (Best for data science workflows)**
-
-Conda excels at managing complex dependencies and is particularly good if you're already using Anaconda or Miniconda:
-
-```bash
-# Create a new conda environment with Python 3.13
-conda create -n aegis-project python=3.13
-
-# Activate the conda environment
-conda activate aegis-project
-
-# Note: You'll use 'pip' for installing the specific project dependencies
-# since the project uses pip-style requirements.txt files
-```
-
-**3. Set Up the Backend System**
-
-The backend handles the sophisticated multi-agent analysis and document processing. These steps are the same regardless of which environment approach you chose above:
-
-```bash
-# Navigate to backend directory
-cd backend
-
-# Install Python dependencies using your chosen approach
-# If using traditional pip or uv:
-pip install -r requirements.txt
-
-# If using conda (conda + pip hybrid approach):
-pip install -r requirements.txt
-# Note: Conda can use pip to install packages that aren't available in conda channels
-
-# Alternative: If you're using uv, you can install dependencies even faster:
-# uv pip install -r requirements.txt
-
-# Set up your OpenAI API key by creating a .env file
-# This file stores your API key securely and keeps it out of your code
-# On macOS/Linux:
-echo "OPENAI_API_KEY=your_actual_api_key_here" > .env
-# On Windows (Command Prompt):
-echo OPENAI_API_KEY=your_actual_api_key_here > .env
-# On Windows (PowerShell):
-'OPENAI_API_KEY=your_actual_api_key_here' | Out-File -FilePath .env -Encoding utf8
-
-# Process the legal documents to create the vector databases
-# Note: You'll need the GDPR, Polish law, and security procedure documents
-# in the data/ directory for this step to work completely
-# These scripts transform complex legal documents into AI-searchable formats
-python process_gdpr.py
-python process_polish_law.py  
-python process_internal_procedures.py
-
-# Start the backend server
-python api.py
-```
-
-The backend server will start on `http://localhost:8000` and provide the multi-agent analysis capabilities. You should see output indicating that all agents have connected successfully to their respective vector databases.
-
-**4. Set Up the Frontend Interface**
-
-The frontend provides the user-friendly interface with sample queries and real-time progress tracking. Open a new terminal window (keeping the backend running) and follow these steps:
-
-```bash
-# Navigate to frontend directory (from the project root)
-cd frontend
-
-# Activate your environment again in this new terminal
-# For traditional venv:
-# Windows: .venv\Scripts\activate
-# macOS/Linux: source .venv/bin/activate
-
-# For uv: same activation commands as above
-
-# For conda:
-# conda activate aegis-project
-
-# Install frontend dependencies
-# For traditional pip or conda environments:
-pip install -r requirements.txt
-
-# For uv (faster installation):
-# uv pip install -r requirements.txt
-
-# Start the Streamlit application
-streamlit run app.py
-```
-
-The frontend application will automatically open in your browser at `http://localhost:8501`. You should see the AEGIS interface with sample queries and system status indicators.### Step-by-Step Installation
-
-The AEGIS project can be set up using several different Python environment management approaches. Each has its own advantages, so choose the one that best fits your development workflow and preferences.
-
-**Understanding Your Options:**
-
-- **Traditional pip + venv**: The standard Python approach that works everywhere and is well-documented. Choose this if you're new to Python or want maximum compatibility.
-- **uv**: A modern, extremely fast package installer and environment manager written in Rust. Choose this if you want faster installations and more efficient dependency resolution.
-- **conda**: A comprehensive package and environment manager that handles both Python and non-Python dependencies. Choose this if you work with data science libraries or need complex dependency management.
-
-**1. Clone and Prepare the Repository**
-
-First, let's get the code and navigate to the project directory. This step is the same regardless of which environment management approach you choose:
-
-```bash
-# Clone the repository to your local machine
-git clone <repository-url>
+git clone https://github.com/imasharc/aegis_project.git
 cd aegis-project
 ```
 
@@ -350,7 +200,7 @@ Open two terminals and in one navigate to backend:
 cd backend
 ```
 
- in the other open frontend:
+ in the other terminal open frontend:
  ```bash
 cd backend
 ```
@@ -434,8 +284,12 @@ uv run api.py
 ```
 
 The backend server will start on `http://localhost:8000` and provide the multi-agent analysis capabilities. You should see output indicating that all agents have connected successfully to their respective vector databases. Wait until you see
+```
+bash
 INFO:     Application startup complete.
-in the terminal. Then proceed with runninf frontend
+```
+in the terminal.
+Then proceed with running the frontend
 
 **4. Set Up the Frontend Interface**
 
