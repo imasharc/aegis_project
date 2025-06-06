@@ -415,8 +415,7 @@ def display_processing_feedback():
            "1. 🇪🇺 GDPR Agent: Analyzing European data protection requirements\n"
            "2. 🇵🇱 Polish Law Agent: Reviewing Polish implementation specifics\n"
            "3. 🔒 Security Agent: Evaluating internal procedure requirements\n"
-           "4. 📊 Integration Agent: Creating comprehensive action plan\n"
-           "5. 🔗 Citation Agent: Formatting authoritative references")
+           "4. 📊🔗 Summarization Agent: Creating comprehensive action plan with authoritative citations")
 
 
 def display_citation_analysis(citations: Dict[str, Any]):
