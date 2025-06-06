@@ -1,0 +1,711 @@
+{
+  "document_metadata": {
+    "document_title": "NovaTech Dynamics Information Security Procedures",
+    "document_owner": "IT Operations Team",
+    "document_id": "NTD-SEC-PROC-001-2025",
+    "version": "1.0",
+    "last_updated": "2025-01-15",
+    "approved_by": "Sarah Chen, Chief Information Security Officer",
+    "effective_date": "2025-02-01",
+    "next_review_date": "2025-08-01",
+    "related_policy": "NTD-SEC-001-2025 Information Security Policy",
+    "document_type": "Security Procedures",
+    "classification_level": "Level 2 - Confidential",
+    "total_sections": 14,
+    "total_procedures": 23
+  },
+  "sections": [
+    {
+      "content": "This document provides detailed technical procedures for implementing the security requirements defined in the NovaTech Dynamics Information Security Policy (NTD-SEC-001-2025). These procedures ensure consistent and effective implementation of security controls across all company systems and operations. These procedures apply to all technical personnel responsible for implementing, maintaining, or monitoring information security controls within NovaTech Dynamics' IT environment.",
+      "metadata": {
+        "type": "section",
+        "section_number": "1",
+        "section_title": "Purpose and Scope",
+        "subsection_count": 3,
+        "policy_reference": "NTD-SEC-001-2025",
+        "audience": "Technical Personnel",
+        "implementation_priority": "foundational"
+      }
+    },
+    {
+      "content": "Procedure 2.1: Data Classification Identification Process\nPolicy Reference: Section 4.1 - Data Classification Levels\nPurpose: Establish consistent methods for identifying and marking data according to classification levels.\nStep 1: Initial Data Assessment - Review data content and business context. Identify data elements that match classification criteria: Level 1 (Restricted) includes proprietary algorithms, financial forecasts, merger plans, key client contracts with Westfield Healthcare, GlobalTech, and Federal agencies. Level 2 (Confidential) includes employee records, customer data, R&D information, system access credentials. Level 3 (Internal) includes general communications, public documentation, non-sensitive operational data.\nStep 2: Data Marking Requirements - Apply classification labels using Microsoft Purview Information Protection. For electronic documents, use built-in labeling tools in Office 365. For database records, implement column-level classification tags in data dictionary. For file systems, use Windows file properties to add classification metadata.\nStep 3: Verification Process - Data owners review classification assignments monthly. IT audits classification accuracy quarterly using automated scanning tools. Misclassified data triggers immediate review and correction.",
+      "metadata": {
+        "type": "procedure",
+        "section_number": "2",
+        "section_title": "Data Classification Implementation Procedures",
+        "procedure_number": "2.1",
+        "procedure_title": "Data Classification Identification Process",
+        "policy_reference": "Section 4.1 - Data Classification Levels",
+        "implementation_steps": [
+          {
+            "step_number": "1",
+            "step_title": "Initial Data Assessment",
+            "step_type": "assessment",
+            "required_tools": ["business_context_analysis"],
+            "data_categories": {
+              "level_1_restricted": ["proprietary_algorithms", "financial_forecasts", "merger_plans", "key_client_contracts"],
+              "level_2_confidential": ["employee_records", "customer_data", "rd_information", "system_credentials"],
+              "level_3_internal": ["general_communications", "public_documentation", "operational_data"]
+            },
+            "key_clients": ["Westfield Healthcare", "GlobalTech", "Federal agencies"]
+          },
+          {
+            "step_number": "2", 
+            "step_title": "Data Marking Requirements",
+            "step_type": "implementation",
+            "required_tools": ["Microsoft Purview Information Protection", "Office 365", "Windows file properties"],
+            "marking_methods": {
+              "electronic_documents": "Office 365 built-in labeling tools",
+              "database_records": "column-level classification tags in data dictionary", 
+              "file_systems": "Windows file properties for classification metadata"
+            }
+          },
+          {
+            "step_number": "3",
+            "step_title": "Verification Process", 
+            "step_type": "validation",
+            "frequency": "monthly_owner_review_quarterly_audit",
+            "automation_tools": ["automated_scanning_tools"],
+            "escalation": "immediate_review_and_correction_for_misclassified_data"
+          }
+        ],
+        "required_tools": ["Microsoft Purview Information Protection", "Office 365", "automated_scanning_tools"],
+        "frequency": "monthly_quarterly",
+        "responsible_roles": ["data_owners", "IT_team"]
+      }
+    },
+    {
+      "content": "Procedure 2.2: Data Handling Configuration\nPolicy Reference: Section 4.2 - Data Handling Requirements\nTechnical Implementation covers three main areas: SharePoint Online Configuration, OneDrive for Business Settings, and Email Protection.\nStep 1: SharePoint Online Configuration - Configure Information Rights Management (IRM) policies by classification level. Level 1 requires restricted external sharing, encryption, and audit logging enabled. Level 2 allows internal sharing only with version control enabled. Level 3 uses standard sharing permissions with basic audit logging.\nStep 2: OneDrive for Business Settings - Enable automatic classification scanning. Configure Data Loss Prevention (DLP) policies to prevent unauthorized sharing. Set retention policies with Level 1 at 7 years, Level 2 at 5 years, and Level 3 at 3 years.\nStep 3: Email Protection using Exchange Online - Configure Office 365 Message Encryption for Level 1 and 2 data. Implement mail flow rules to detect and protect classified information. Enable Advanced Threat Protection for attachment scanning.",
+      "metadata": {
+        "type": "procedure",
+        "section_number": "2",
+        "section_title": "Data Classification Implementation Procedures", 
+        "procedure_number": "2.2",
+        "procedure_title": "Data Handling Configuration",
+        "policy_reference": "Section 4.2 - Data Handling Requirements",
+        "implementation_steps": [
+          {
+            "step_number": "1",
+            "step_title": "SharePoint Online Configuration",
+            "step_type": "platform_configuration",
+            "required_tools": ["SharePoint Online", "Information Rights Management"],
+            "configuration_by_level": {
+              "level_1": {
+                "external_sharing": "restricted",
+                "encryption": "required",
+                "audit_logging": "enabled"
+              },
+              "level_2": {
+                "sharing": "internal_only",
+                "version_control": "enabled"
+              },
+              "level_3": {
+                "sharing": "standard_permissions",
+                "audit_logging": "basic"
+              }
+            }
+          },
+          {
+            "step_number": "2",
+            "step_title": "OneDrive for Business Settings",
+            "step_type": "platform_configuration",
+            "required_tools": ["OneDrive for Business", "Data Loss Prevention"],
+            "features": {
+              "classification_scanning": "automatic",
+              "dlp_policies": "prevent_unauthorized_sharing",
+              "retention_policies": {
+                "level_1": "7_years",
+                "level_2": "5_years", 
+                "level_3": "3_years"
+              }
+            }
+          },
+          {
+            "step_number": "3",
+            "step_title": "Email Protection (Exchange Online)",
+            "step_type": "email_security_configuration",
+            "required_tools": ["Exchange Online", "Office 365 Message Encryption", "Advanced Threat Protection"],
+            "protection_features": {
+              "message_encryption": "level_1_and_2_data",
+              "mail_flow_rules": "detect_and_protect_classified_information",
+              "attachment_scanning": "advanced_threat_protection_enabled"
+            }
+          }
+        ],
+        "required_tools": ["SharePoint Online", "OneDrive for Business", "Exchange Online", "Office 365 Message Encryption"],
+        "responsible_roles": ["IT_administrators", "data_owners"]
+      }
+    },
+    {
+      "content": "Procedure 3.1: User Account Management Process\nPolicy Reference: Section 5.2 - Access Authorization Process\nTools Required: Active Directory, ServiceNow, Okta Identity Management\nNew User Account Creation follows a three-step process: Account Request Process, Initial Access Provisioning, and Role-Based Access Assignment.\nStep 1: Account Request Process - HR submits new user request in ServiceNow with employee details and role information. IT verifies employment status and manager approval. Create standard user account in Active Directory with naming convention firstname.lastname.\nStep 2: Initial Access Provisioning - Add user to base security groups: Domain Users, All_Employees, Office365_Users. Assign basic applications: Office 365, Okta portal, company intranet access. Configure email account with appropriate mailbox quotas and retention policies.\nStep 3: Role-Based Access Assignment - Manager submits additional access requests through ServiceNow with business justification. IT reviews request against role-based access matrix maintained in security documentation. Implement additional group memberships and application access as approved.\nAccess Review Process includes Quarterly Access Reviews and Annual Comprehensive Review with specific procedures for each.",
+      "metadata": {
+        "type": "procedure",
+        "section_number": "3",
+        "section_title": "Access Control Implementation Procedures",
+        "procedure_number": "3.1", 
+        "procedure_title": "User Account Management Process",
+        "policy_reference": "Section 5.2 - Access Authorization Process",
+        "implementation_steps": [
+          {
+            "step_number": "1",
+            "step_title": "Account Request Process",
+            "step_type": "request_workflow",
+            "required_tools": ["ServiceNow", "Active Directory"],
+            "process_flow": {
+              "initiation": "HR_submits_new_user_request",
+              "verification": "IT_verifies_employment_status_and_manager_approval",
+              "account_creation": "create_standard_user_account_with_naming_convention"
+            },
+            "naming_convention": "firstname.lastname",
+            "required_approvals": ["HR", "manager_approval"]
+          },
+          {
+            "step_number": "2",
+            "step_title": "Initial Access Provisioning", 
+            "step_type": "baseline_access_assignment",
+            "required_tools": ["Active Directory", "Office 365", "Okta"],
+            "base_security_groups": ["Domain Users", "All_Employees", "Office365_Users"],
+            "basic_applications": ["Office 365", "Okta portal", "company intranet access"],
+            "email_configuration": {
+              "mailbox_quotas": "appropriate_limits",
+              "retention_policies": "standard_corporate_retention"
+            }
+          },
+          {
+            "step_number": "3",
+            "step_title": "Role-Based Access Assignment",
+            "step_type": "additional_access_provisioning",
+            "required_tools": ["ServiceNow", "role-based access matrix"],
+            "approval_process": {
+              "request_submission": "manager_submits_through_ServiceNow",
+              "business_justification": "required",
+              "access_review": "IT_reviews_against_role_matrix",
+              "implementation": "additional_groups_and_applications_as_approved"
+            }
+          }
+        ],
+        "required_tools": ["Active Directory", "ServiceNow", "Okta Identity Management"],
+        "responsible_roles": ["HR", "IT_administrators", "managers"],
+        "review_frequency": "quarterly_and_annual"
+      }
+    },
+    {
+      "content": "Procedure 3.2: Privileged Access Management Implementation\nPolicy Reference: Section 5.1 - Principle of Least Privilege\nTools Required: CyberArk Privileged Access Security, Active Directory Administrative Tiers\nAdministrative Account Management includes three components: Privileged Account Creation, CyberArk PAM Implementation, and Just-in-Time Access Configuration.\nStep 1: Privileged Account Creation - Create separate administrative accounts using naming convention adm_firstname.lastname. Assign administrative accounts to appropriate Active Directory administrative tier. Configure accounts with enhanced security settings including smart card required and cannot be delegated.\nStep 2: CyberArk PAM Implementation - Onboard privileged accounts to CyberArk vault with automatic password rotation. Configure checkout/checkin procedures for administrative access. Implement session recording for all privileged access activities. Set maximum session durations: Domain Admin 2 hours, Server Admin 4 hours, Database Admin 8 hours.\nStep 3: Just-in-Time Access Configuration - Configure Azure AD Privileged Identity Management for cloud administrator roles. Set approval workflows for privileged access requests. Implement time-limited access with automatic expiration. Configure alert notifications for privileged access activation.",
+      "metadata": {
+        "type": "procedure",
+        "section_number": "3",
+        "section_title": "Access Control Implementation Procedures",
+        "procedure_number": "3.2",
+        "procedure_title": "Privileged Access Management Implementation", 
+        "policy_reference": "Section 5.1 - Principle of Least Privilege",
+        "implementation_steps": [
+          {
+            "step_number": "1",
+            "step_title": "Privileged Account Creation",
+            "step_type": "account_provisioning",
+            "required_tools": ["Active Directory Administrative Tiers"],
+            "naming_convention": "adm_firstname.lastname",
+            "security_settings": {
+              "smart_card_required": true,
+              "cannot_be_delegated": true,
+              "administrative_tier_assignment": "appropriate_tier"
+            }
+          },
+          {
+            "step_number": "2",
+            "step_title": "CyberArk PAM Implementation",
+            "step_type": "privileged_access_management",
+            "required_tools": ["CyberArk Privileged Access Security"],
+            "features": {
+              "vault_onboarding": "automatic_password_rotation",
+              "access_procedures": "checkout_checkin_procedures",
+              "session_recording": "all_privileged_access_activities",
+              "session_durations": {
+                "domain_admin": "2_hours",
+                "server_admin": "4_hours", 
+                "database_admin": "8_hours"
+              }
+            }
+          },
+          {
+            "step_number": "3",
+            "step_title": "Just-in-Time Access Configuration",
+            "step_type": "jit_access_management",
+            "required_tools": ["Azure AD Privileged Identity Management"],
+            "configuration": {
+              "approval_workflows": "privileged_access_requests",
+              "time_limited_access": "automatic_expiration",
+              "alert_notifications": "privileged_access_activation"
+            }
+          }
+        ],
+        "required_tools": ["CyberArk Privileged Access Security", "Active Directory Administrative Tiers", "Azure AD Privileged Identity Management"],
+        "responsible_roles": ["IT_security_team", "system_administrators"],
+        "security_controls": ["session_recording", "automatic_password_rotation", "time_limited_access"]
+      }
+    },
+    {
+      "content": "Procedure 4.1: Firewall Configuration and Management\nPolicy Reference: Section 6.1 - Network Security\nEquipment: Cisco ASA 5555-X Next-Generation Firewalls (Primary and Secondary)\nFirewall Rule Management Process includes Rule Request and Approval, Implementation Standards, and Rule Review and Maintenance.\nStep 1: Rule Request and Approval - Submit firewall change requests through ServiceNow with detailed justification including source/destination addresses, ports, protocols, and business purpose. Security team reviews requests against security policy and network segmentation requirements. CISO approval required for rules allowing external access to internal resources.\nStep 2: Implementation Standards - Follow deny by default principle with all traffic blocked unless explicitly permitted. Implement network segmentation zones: DMZ, Internal Network, Management Network, Guest Network. Configure logging for all firewall rules with centralized log collection to Splunk SIEM. Test firewall rules in staging environment before production deployment.\nStep 3: Rule Review and Maintenance - Quarterly review of all firewall rules to identify and remove unused or outdated rules. Document business justification for each rule in firewall rule database. Monitor rule utilization through traffic analysis and remove zero-hit rules after 90 days. Maintain separate rulesets for each network zone with clear documentation.",
+      "metadata": {
+        "type": "procedure",
+        "section_number": "4",
+        "section_title": "Network Security Implementation Procedures",
+        "procedure_number": "4.1",
+        "procedure_title": "Firewall Configuration and Management",
+        "policy_reference": "Section 6.1 - Network Security",
+        "implementation_steps": [
+          {
+            "step_number": "1",
+            "step_title": "Rule Request and Approval",
+            "step_type": "change_management",
+            "required_tools": ["ServiceNow"],
+            "request_requirements": {
+              "source_destination_addresses": "required",
+              "ports_protocols": "required",
+              "business_purpose": "required",
+              "detailed_justification": "required"
+            },
+            "approval_process": {
+              "security_team_review": "against_policy_and_segmentation",
+              "ciso_approval": "required_for_external_to_internal_access"
+            }
+          },
+          {
+            "step_number": "2",
+            "step_title": "Implementation Standards",
+            "step_type": "configuration_standards",
+            "required_tools": ["Cisco ASA 5555-X", "Splunk SIEM"],
+            "core_principles": {
+              "default_policy": "deny_by_default",
+              "network_segmentation": ["DMZ", "Internal Network", "Management Network", "Guest Network"],
+              "logging": "centralized_to_splunk_siem",
+              "testing": "staging_environment_before_production"
+            }
+          },
+          {
+            "step_number": "3",
+            "step_title": "Rule Review and Maintenance",
+            "step_type": "ongoing_maintenance",
+            "required_tools": ["firewall rule database", "traffic analysis tools"],
+            "maintenance_activities": {
+              "quarterly_review": "identify_remove_unused_outdated_rules",
+              "documentation": "business_justification_in_rule_database",
+              "utilization_monitoring": "traffic_analysis",
+              "cleanup": "remove_zero_hit_rules_after_90_days"
+            }
+          }
+        ],
+        "required_equipment": ["Cisco ASA 5555-X Next-Generation Firewalls"],
+        "network_zones": ["DMZ", "Internal Network", "Management Network", "Guest Network"],
+        "responsible_roles": ["security_team", "network_administrators", "CISO"],
+        "review_frequency": "quarterly"
+      }
+    },
+    {
+      "content": "Procedure 5.1: Endpoint Detection and Response Deployment\nPolicy Reference: Section 6.2 - Endpoint Security\nPrimary Tool: CrowdStrike Falcon EDR Platform\nAgent Deployment Process includes Preparation and Planning, Agent Installation and Configuration, and Monitoring and Response Procedures.\nStep 1: Preparation and Planning - Maintain inventory of all company devices in Microsoft System Center Configuration Manager. Test CrowdStrike agent deployment in lab environment with representative device configurations. Create deployment groups: Critical servers, user workstations, mobile devices, network infrastructure.\nStep 2: Agent Installation and Configuration - Deploy CrowdStrike Falcon sensor using SCCM software distribution. Configure prevention policies by device type with servers in balanced mode and workstations in protection mode. Enable real-time response capabilities for incident investigation. Configure automatic containment for high-confidence malware detections.\nStep 3: Monitoring and Response Procedures - Security Operations Center monitors CrowdStrike console 24/7 for security alerts. Escalation procedures: Critical alerts require immediate response, High alerts within 15 minutes, Medium alerts within 1 hour. Document all endpoint security incidents in ServiceNow with investigation details and remediation actions. Generate weekly reports on endpoint security posture including threat trends and remediation metrics.",
+      "metadata": {
+        "type": "procedure",
+        "section_number": "5",
+        "section_title": "Endpoint Security Implementation Procedures",
+        "procedure_number": "5.1",
+        "procedure_title": "Endpoint Detection and Response Deployment",
+        "policy_reference": "Section 6.2 - Endpoint Security",
+        "implementation_steps": [
+          {
+            "step_number": "1",
+            "step_title": "Preparation and Planning",
+            "step_type": "deployment_preparation",
+            "required_tools": ["Microsoft System Center Configuration Manager"],
+            "preparation_activities": {
+              "device_inventory": "maintain_in_sccm",
+              "lab_testing": "representative_device_configurations",
+              "deployment_groups": ["Critical servers", "user workstations", "mobile devices", "network infrastructure"]
+            }
+          },
+          {
+            "step_number": "2",
+            "step_title": "Agent Installation and Configuration",
+            "step_type": "software_deployment",
+            "required_tools": ["CrowdStrike Falcon EDR Platform", "SCCM"],
+            "configuration_settings": {
+              "deployment_method": "sccm_software_distribution",
+              "prevention_policies": {
+                "servers": "balanced_mode",
+                "workstations": "protection_mode"
+              },
+              "features": {
+                "real_time_response": "enabled_for_incident_investigation",
+                "automatic_containment": "high_confidence_malware_detections"
+              }
+            }
+          },
+          {
+            "step_number": "3",
+            "step_title": "Monitoring and Response Procedures",
+            "step_type": "ongoing_operations",
+            "required_tools": ["CrowdStrike console", "ServiceNow"],
+            "monitoring": {
+              "coverage": "24_7_soc_monitoring",
+              "escalation_procedures": {
+                "critical_alerts": "immediate_response",
+                "high_alerts": "15_minutes",
+                "medium_alerts": "1_hour"
+              },
+              "documentation": "servicenow_incident_tracking",
+              "reporting": "weekly_security_posture_reports"
+            }
+          }
+        ],
+        "primary_tool": "CrowdStrike Falcon EDR Platform",
+        "deployment_groups": ["Critical servers", "user workstations", "mobile devices", "network infrastructure"],
+        "responsible_roles": ["IT_operations", "security_operations_center"],
+        "monitoring_schedule": "24_7"
+      }
+    },
+    {
+      "content": "Procedure 6.1: Active Directory Password Policy Configuration\nPolicy Reference: Section 7 - Access Control (Password Requirements)\nImplementation Location: Default Domain Policy Group Policy Object\nPassword Policy Settings include Domain Controller Configuration and Fine-Grained Password Policy for Privileged Users.\nStep 1: Domain Controller Configuration - Open Group Policy Management Console on primary domain controller DC01.novatech.local. Navigate to Default Domain Policy > Computer Configuration > Policies > Windows Settings > Security Settings > Account Policies > Password Policy. Configure settings: Minimum password length 12 characters, Password complexity requirements Enabled, Password history 12 previous passwords, Maximum password age 90 days, Minimum password age 1 day.\nStep 2: Fine-Grained Password Policy for Privileged Users - Create Password Settings Object named AdminPasswordPolicy. Configure enhanced requirements for administrative accounts: Minimum password length 15 characters, Maximum password age 60 days, Password history 24 previous passwords. Apply policy to Domain Admins and Enterprise Admins security groups.",
+      "metadata": {
+        "type": "procedure",
+        "section_number": "6",
+        "section_title": "Password Policy Implementation Procedures",
+        "procedure_number": "6.1",
+        "procedure_title": "Active Directory Password Policy Configuration",
+        "policy_reference": "Section 7 - Access Control (Password Requirements)",
+        "implementation_steps": [
+          {
+            "step_number": "1",
+            "step_title": "Domain Controller Configuration",
+            "step_type": "group_policy_configuration",
+            "required_tools": ["Group Policy Management Console", "Active Directory"],
+            "implementation_location": "DC01.novatech.local",
+            "gpo_path": "Default Domain Policy > Computer Configuration > Policies > Windows Settings > Security Settings > Account Policies > Password Policy",
+            "password_settings": {
+              "minimum_length": "12_characters",
+              "complexity_requirements": "enabled",
+              "password_history": "12_previous_passwords",
+              "maximum_age": "90_days",
+              "minimum_age": "1_day"
+            }
+          },
+          {
+            "step_number": "2",
+            "step_title": "Fine-Grained Password Policy for Privileged Users",
+            "step_type": "enhanced_policy_configuration",
+            "required_tools": ["Password Settings Object"],
+            "policy_name": "AdminPasswordPolicy",
+            "enhanced_requirements": {
+              "minimum_length": "15_characters",
+              "maximum_age": "60_days",
+              "password_history": "24_previous_passwords"
+            },
+            "target_groups": ["Domain Admins", "Enterprise Admins"]
+          }
+        ],
+        "domain_controller": "DC01.novatech.local",
+        "responsible_roles": ["domain_administrators", "IT_security_team"],
+        "policy_scope": ["standard_users", "privileged_users"]
+      }
+    },
+    {
+      "content": "Procedure 7.1: Microsoft Intune MDM Configuration\nPolicy Reference: Section 12.1 - Mobile Device Security\nPlatform: Microsoft Intune with Azure Active Directory Integration\nDevice Enrollment Process includes Company Portal Setup, Security Profile Configuration, and Application Management.\nStep 1: Company Portal Setup - Configure Microsoft Intune Company Portal with company branding and support information. Create device enrollment policies for iOS, Android, and Windows mobile devices. Configure automatic enrollment for Azure AD joined devices.\nStep 2: Security Profile Configuration - Create device compliance policies requiring device encryption, screen lock timeout of 10 minutes, and minimum OS versions. Configure app protection policies for Office 365 applications with data loss prevention controls. Implement conditional access policies restricting email access to compliant devices only.\nStep 3: Application Management - Maintain approved application catalog in Company Portal. Configure managed app configuration for business-critical applications. Implement app wrapping for line-of-business applications requiring additional security controls. Monitor and report on application usage and security compliance monthly.",
+      "metadata": {
+        "type": "procedure",
+        "section_number": "7",
+        "section_title": "Mobile Device Management Procedures",
+        "procedure_number": "7.1",
+        "procedure_title": "Microsoft Intune MDM Configuration",
+        "policy_reference": "Section 12.1 - Mobile Device Security",
+        "implementation_steps": [
+          {
+            "step_number": "1",
+            "step_title": "Company Portal Setup",
+            "step_type": "portal_configuration",
+            "required_tools": ["Microsoft Intune Company Portal", "Azure Active Directory"],
+            "configuration_elements": {
+              "company_branding": "company_logo_and_support_information",
+              "enrollment_policies": ["iOS", "Android", "Windows mobile devices"],
+              "automatic_enrollment": "azure_ad_joined_devices"
+            }
+          },
+          {
+            "step_number": "2", 
+            "step_title": "Security Profile Configuration",
+            "step_type": "compliance_policy_setup",
+            "required_tools": ["Microsoft Intune", "conditional access policies"],
+            "compliance_requirements": {
+              "device_encryption": "required",
+              "screen_lock_timeout": "10_minutes",
+              "minimum_os_versions": "enforced"
+            },
+            "protection_features": {
+              "app_protection_policies": "office_365_with_dlp",
+              "conditional_access": "compliant_devices_only_for_email"
+            }
+          },
+          {
+            "step_number": "3",
+            "step_title": "Application Management",
+            "step_type": "app_lifecycle_management",
+            "required_tools": ["Company Portal", "app wrapping tools"],
+            "management_activities": {
+              "approved_catalog": "maintained_in_company_portal",
+              "managed_app_configuration": "business_critical_applications",
+              "app_wrapping": "line_of_business_applications",
+              "monitoring": "monthly_usage_and_compliance_reports"
+            }
+          }
+        ],
+        "platform": "Microsoft Intune with Azure Active Directory Integration",
+        "supported_devices": ["iOS", "Android", "Windows mobile"],
+        "responsible_roles": ["IT_administrators", "mobile_device_management_team"],
+        "reporting_frequency": "monthly"
+      }
+    },
+    {
+      "content": "Procedure 8.1: Incident Detection and Initial Response\nPolicy Reference: Section 8.1 - Incident Reporting\n24/7 Contact Information: SOC Email soc@novatechdynamics.com, SOC Phone Internal extension 4911, Emergency Cell 617-555-0199, Microsoft Teams @Security Response Team\nInitial Response Process includes Incident Detection and Reporting, Initial Assessment and Classification, and Incident Response Team Activation.\nStep 1: Incident Detection and Reporting - Security incidents can be detected through automated monitoring alerts, user reports, or security tool notifications. Anyone detecting a potential incident should immediately contact the SOC using established communication channels. SOC analyst logs incident in ServiceNow Security Incident Management module and assigns unique incident number.\nStep 2: Initial Assessment and Classification - SOC analyst performs initial assessment within 15 minutes of incident report. Classify incident severity using established criteria: Critical includes data breach, malware infection, system compromise affecting business operations. High includes attempted unauthorized access, suspicious network activity, policy violations. Medium includes failed login attempts, minor security tool alerts, suspicious emails. Low includes security awareness violations, minor configuration issues.\nStep 3: Incident Response Team Activation - Critical and High severity incidents trigger automatic notification to Incident Response Team. Team members acknowledge notification within response time requirements. Incident Commander coordinates response activities and maintains communication with stakeholders.",
+      "metadata": {
+        "type": "procedure",
+        "section_number": "8", 
+        "section_title": "Security Incident Response Procedures",
+        "procedure_number": "8.1",
+        "procedure_title": "Incident Detection and Initial Response",
+        "policy_reference": "Section 8.1 - Incident Reporting",
+        "implementation_steps": [
+          {
+            "step_number": "1",
+            "step_title": "Incident Detection and Reporting",
+            "step_type": "incident_identification",
+            "required_tools": ["ServiceNow Security Incident Management"],
+            "detection_methods": ["automated_monitoring_alerts", "user_reports", "security_tool_notifications"],
+            "contact_information": {
+              "soc_email": "soc@novatechdynamics.com",
+              "soc_phone": "internal_extension_4911",
+              "emergency_cell": "617-555-0199",
+              "teams": "@Security Response Team"
+            },
+            "documentation": "servicenow_incident_logging_with_unique_number"
+          },
+          {
+            "step_number": "2",
+            "step_title": "Initial Assessment and Classification",
+            "step_type": "incident_triage",
+            "required_tools": ["incident_classification_criteria"],
+            "response_time": "15_minutes",
+            "severity_levels": {
+              "critical": ["data_breach", "malware_infection", "system_compromise_affecting_operations"],
+              "high": ["attempted_unauthorized_access", "suspicious_network_activity", "policy_violations"],
+              "medium": ["failed_login_attempts", "minor_security_tool_alerts", "suspicious_emails"],
+              "low": ["security_awareness_violations", "minor_configuration_issues"]
+            }
+          },
+          {
+            "step_number": "3",
+            "step_title": "Incident Response Team Activation",
+            "step_type": "team_coordination",
+            "required_tools": ["automated_notification_system"],
+            "activation_criteria": ["critical_and_high_severity_incidents"],
+            "team_requirements": {
+              "acknowledgment": "within_response_time_requirements",
+              "incident_commander": "coordinates_response_and_stakeholder_communication"
+            }
+          }
+        ],
+        "contact_information": {
+          "soc_email": "soc@novatechdynamics.com",
+          "soc_phone": "internal_extension_4911", 
+          "emergency_cell": "617-555-0199",
+          "teams": "@Security Response Team"
+        },
+        "response_times": {
+          "initial_assessment": "15_minutes",
+          "team_activation": "automatic_for_critical_high"
+        },
+        "responsible_roles": ["SOC_analysts", "incident_response_team", "incident_commander"]
+      }
+    },
+    {
+      "content": "Procedure 9.1: Vulnerability Management Process\nPolicy Reference: Section 10.2 - Risk Assessment\nTools: Qualys VMDR, Nessus Professional, Microsoft Defender for Endpoint\nVulnerability Scanning Process includes Scheduled Scanning Activities and Vulnerability Remediation Process.\nStep 1: Scheduled Scanning Activities - Perform authenticated vulnerability scans on all internal systems weekly using Qualys VMDR. Conduct external perimeter scans monthly using Nessus Professional from outside network. Execute web application vulnerability scans quarterly using OWASP ZAP for customer-facing applications. Generate executive summary reports monthly showing vulnerability trends and remediation progress.\nStep 2: Vulnerability Remediation Process - Automatically create ServiceNow tickets for newly identified vulnerabilities based on severity ratings. Assign remediation tickets to appropriate system owners with target resolution dates. Track remediation progress and escalate overdue critical and high vulnerabilities to management. Validate vulnerability remediation through rescanning and documentation of remediation activities.",
+      "metadata": {
+        "type": "procedure",
+        "section_number": "9",
+        "section_title": "Security Assessment and Monitoring Procedures", 
+        "procedure_number": "9.1",
+        "procedure_title": "Vulnerability Management Process",
+        "policy_reference": "Section 10.2 - Risk Assessment",
+        "implementation_steps": [
+          {
+            "step_number": "1",
+            "step_title": "Scheduled Scanning Activities",
+            "step_type": "vulnerability_scanning",
+            "required_tools": ["Qualys VMDR", "Nessus Professional", "OWASP ZAP"],
+            "scanning_schedule": {
+              "internal_systems": "weekly_authenticated_scans_qualys_vmdr",
+              "external_perimeter": "monthly_nessus_professional",
+              "web_applications": "quarterly_owasp_zap_customer_facing"
+            },
+            "reporting": "monthly_executive_summary_vulnerability_trends"
+          },
+          {
+            "step_number": "2",
+            "step_title": "Vulnerability Remediation Process", 
+            "step_type": "remediation_workflow",
+            "required_tools": ["ServiceNow", "vulnerability_scanning_tools"],
+            "remediation_workflow": {
+              "ticket_creation": "automatic_servicenow_tickets_by_severity",
+              "assignment": "system_owners_with_target_dates",
+              "tracking": "progress_monitoring_and_escalation",
+              "validation": "rescanning_and_documentation"
+            }
+          }
+        ],
+        "scanning_tools": ["Qualys VMDR", "Nessus Professional", "Microsoft Defender for Endpoint", "OWASP ZAP"],
+        "scanning_frequencies": {
+          "internal_weekly": "Qualys VMDR",
+          "external_monthly": "Nessus Professional", 
+          "web_apps_quarterly": "OWASP ZAP"
+        },
+        "responsible_roles": ["security_team", "system_owners", "vulnerability_management_team"],
+        "reporting_frequency": "monthly"
+      }
+    },
+    {
+      "content": "Procedure 10.1: SOC 2 Audit Preparation\nPolicy Reference: Section 10.1 - Regulatory Compliance\nAnnual Audit Process with External Auditor (Currently Deloitte)\nPre-Audit Preparation and Audit Execution Support procedures ensure compliance readiness.\nStep 1: Pre-Audit Preparation - Review and update all security policies and procedures 90 days before audit commencement. Conduct internal control testing using audit-ready documentation and evidence collection. Prepare management representation letters and organizational charts showing security responsibilities. Schedule audit planning meeting with external auditors to discuss scope and timeline.\nStep 2: Audit Execution Support - Provide auditors with requested documentation including policies, procedures, and evidence of control implementation. Coordinate interviews with key personnel and system demonstrations as requested by audit team. Address any audit findings or recommendations through formal management responses and remediation plans. Review draft audit report and provide management comments before final report issuance.",
+      "metadata": {
+        "type": "procedure",
+        "section_number": "10",
+        "section_title": "Compliance and Audit Procedures",
+        "procedure_number": "10.1", 
+        "procedure_title": "SOC 2 Audit Preparation",
+        "policy_reference": "Section 10.1 - Regulatory Compliance",
+        "implementation_steps": [
+          {
+            "step_number": "1",
+            "step_title": "Pre-Audit Preparation",
+            "step_type": "audit_readiness",
+            "required_tools": ["audit_documentation_system"],
+            "preparation_timeline": "90_days_before_audit",
+            "preparation_activities": {
+              "policy_review": "review_and_update_all_security_policies_procedures",
+              "internal_testing": "control_testing_with_audit_ready_documentation",
+              "documentation": "management_letters_and_organizational_charts",
+              "planning": "audit_planning_meeting_with_external_auditors"
+            }
+          },
+          {
+            "step_number": "2",
+            "step_title": "Audit Execution Support",
+            "step_type": "audit_coordination",
+            "required_tools": ["document_management_system"],
+            "support_activities": {
+              "documentation_provision": "policies_procedures_control_evidence",
+              "interview_coordination": "key_personnel_and_system_demonstrations",
+              "findings_management": "formal_responses_and_remediation_plans",
+              "report_review": "draft_review_and_management_comments"
+            }
+          }
+        ],
+        "external_auditor": "Deloitte",
+        "audit_frequency": "annual",
+        "responsible_roles": ["CISO", "compliance_team", "audit_liaison"],
+        "preparation_timeline": "90_days_advance"
+      }
+    },
+    {
+      "content": "Procedure 11.1: Security Awareness Training Implementation\nPolicy Reference: Section 7 - Security Awareness and Training\nTraining Platform: Cornerstone OnDemand Learning Management System\nTraining Program Management includes New Employee Security Training and Ongoing Awareness Activities.\nStep 1: New Employee Security Training - Enroll new employees in mandatory security awareness course within first week of employment. Assign role-specific training modules based on job function and data access requirements. Track training completion through Cornerstone LMS with automated reminder notifications. Require passing score of 80% on security awareness assessment before system access provisioning.\nStep 2: Ongoing Awareness Activities - Deploy monthly phishing simulation campaigns using KnowBe4 platform with targeted training for employees who fail tests. Conduct quarterly security lunch-and-learn sessions covering current threat trends and security best practices. Distribute monthly security newsletters highlighting policy updates, threat intelligence, and recognition of security-conscious behavior. Measure security awareness program effectiveness through metrics including phishing click rates, incident reporting, and training completion rates.",
+      "metadata": {
+        "type": "procedure",
+        "section_number": "11",
+        "section_title": "Training and Awareness Procedures",
+        "procedure_number": "11.1",
+        "procedure_title": "Security Awareness Training Implementation",
+        "policy_reference": "Section 7 - Security Awareness and Training",
+        "implementation_steps": [
+          {
+            "step_number": "1",
+            "step_title": "New Employee Security Training",
+            "step_type": "onboarding_training",
+            "required_tools": ["Cornerstone OnDemand LMS"],
+            "training_requirements": {
+              "enrollment_timeline": "within_first_week_of_employment",
+              "role_specific_modules": "based_on_job_function_and_data_access",
+              "completion_tracking": "cornerstone_lms_with_automated_reminders",
+              "assessment_requirement": "80_percent_passing_score_before_system_access"
+            }
+          },
+          {
+            "step_number": "2",
+            "step_title": "Ongoing Awareness Activities",
+            "step_type": "continuous_awareness",
+            "required_tools": ["KnowBe4 platform", "security_newsletter_system"],
+            "awareness_activities": {
+              "phishing_simulations": "monthly_knowbe4_with_targeted_training",
+              "lunch_and_learn": "quarterly_threat_trends_and_best_practices",
+              "newsletters": "monthly_policy_updates_threat_intelligence_recognition",
+              "effectiveness_metrics": ["phishing_click_rates", "incident_reporting", "training_completion_rates"]
+            }
+          }
+        ],
+        "training_platform": "Cornerstone OnDemand Learning Management System",
+        "phishing_simulation_platform": "KnowBe4",
+        "training_frequencies": {
+          "new_employee": "within_first_week",
+          "phishing_simulations": "monthly",
+          "lunch_and_learn": "quarterly",
+          "newsletters": "monthly"
+        },
+        "responsible_roles": ["HR_training_team", "security_awareness_coordinator"],
+        "success_metrics": ["phishing_click_rates", "incident_reporting", "training_completion_rates"]
+      }
+    }
+  ],
+  "implementation_metadata": {
+    "total_procedures": 11,
+    "procedure_categories": {
+      "data_classification": 2,
+      "access_control": 2, 
+      "network_security": 1,
+      "endpoint_security": 1,
+      "password_management": 1,
+      "mobile_device_management": 1,
+      "incident_response": 1,
+      "vulnerability_management": 1,
+      "compliance_audit": 1,
+      "training_awareness": 1
+    },
+    "required_tools": [
+      "Microsoft Purview Information Protection",
+      "Active Directory",
+      "ServiceNow", 
+      "Okta Identity Management",
+      "CyberArk Privileged Access Security",
+      "Cisco ASA 5555-X",
+      "CrowdStrike Falcon EDR",
+      "Microsoft Intune",
+      "Qualys VMDR",
+      "Nessus Professional",
+      "Cornerstone OnDemand LMS",
+      "KnowBe4"
+    ],
+    "responsible_roles": [
+      "IT_administrators",
+      "security_team",
+      "SOC_analysts",
+      "system_administrators",
+      "CISO",
+      "compliance_team",
+      "HR_training_team"
+    ],
+    "review_frequencies": {
+      "monthly": ["data_classification_verification", "vulnerability_reports", "training_activities"],
+      "quarterly": ["access_reviews", "firewall_rules", "security_assessments"],
+      "annually": ["policy_reviews", "audit_preparation", "comprehensive_access_review"]
+    },
+    "compliance_frameworks": [
+      "ISO_27001",
+      "SOC_2_Type_II",
+      "GDPR",
+      "HIPAA",
+      "NIST_Cybersecurity_Framework"
+    ]
+  }
+}

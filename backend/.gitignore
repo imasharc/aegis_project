@@ -13,7 +13,8 @@ wheels/
 .env
 
 # Documents to be processed by RAG
-data/
+data/*
+!data/processed/
 
 ## uv files
 uv.lock
