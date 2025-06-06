@@ -163,6 +163,15 @@ The interface is designed to support both newcomers and experienced users:
 
 **Enhanced Citation Formatting**: Legal and regulatory references are formatted according to professional standards, suitable for compliance documentation and legal review.
 
+## 📚 Screenshots
+
+![image](https://github.com/user-attachments/assets/d489aa62-f599-4328-96b8-d112a6e2cd87)
+
+![image](https://github.com/user-attachments/assets/34bff81c-7ac8-455f-a039-36b676a3e43c)
+
+![image](https://github.com/user-attachments/assets/65a34b1f-fd45-4150-9f1b-57d185f63317)
+
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -171,7 +180,7 @@ Before you begin, make sure you have the following installed on your system:
 
 - **Python 3.13 or higher**: The system uses modern Python features for better performance and maintainability
 - **OpenAI API Key**: Required for the AI agents to perform analysis (set as environment variable `OPENAI_API_KEY`)
-- **LangSmith API Key**: Required for monitoring the system (if you have LangSmith account follow the documentation at https://docs.smith.langchain.com/observability or directly set environment variable for `LANGSMITH_API_KEY`, `LANGSMITH_TRACING`, `LANGSMITH_PROJECT` and `LANGSMITH_PROJECT`)
+- **LangSmith API Key**: Optional for monitoring the system (if you have LangSmith account follow the documentation at https://docs.smith.langchain.com/observability or directly set environment variable for `LANGSMITH_API_KEY`, `LANGSMITH_TRACING`, `LANGSMITH_PROJECT` and `LANGSMITH_PROJECT`)
 - **Git**: For cloning the repository and version control
 
 ### Step-by-Step Installation
