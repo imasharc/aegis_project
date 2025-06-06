@@ -42,6 +42,10 @@ The system demonstrates advanced software engineering principles including:
 - **Enhanced Citation Display**: Professional formatting of legal and regulatory references
 - **Graceful Error Handling**: Comprehensive error recovery and user guidance
 
+**MCP Server (EXPERIMENTAL, MAY BREAK):**
+- **Saving summary report to root/mcp_server/summarization_reports**: MAY BREAK so it was introduced as feat/mcp_server(breaking) branch and NOT MERGED but pushed. Most likely relative paths to directories are incorrect
+
+
 ## 📁 Project Structure
 
 Understanding the project architecture helps you navigate the codebase effectively and appreciate how different components interact following modern software engineering principles.

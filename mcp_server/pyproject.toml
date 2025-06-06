@@ -1,0 +1,17 @@
+[project]
+name = "aegis-mcp-server"
+version = "0.1.0"
+description = "MCP server for AEGIS compliance report management"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "mcp>=1.0.0",
+    "pathlib",  # For safe file path handling
+    "asyncio",  # For async operations (though this is built-in)
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+]
